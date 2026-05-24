@@ -7,23 +7,23 @@ Switches between Day, Week, and Monthly views; Tracks ToDos, See Weather Updates
 Planned Integration With Google Identity. 
 
 RoadMap:
-[x] Project Setup - Vue + Pinia, GitHub, Basic Scaffold
-[ ] Month/Week/Day UI - <transition> Toggled Views, Dark/Light View-Toggle
-[ ] Pinia ToDo Store - Central ToDos, Sync Across Views, Custom Labels
-[ ] Weather API - Daily/Weekly Banner, Month View Icons
-[ ] Google Login Integration - Secure User Data
-[ ] Final Polish/Testing - Stress Test, Prettify, BugFix
-[ ] Ship to Netlify for Publishing
+- [x] Project Setup - Vue + Pinia, GitHub, Basic Scaffold
+- [ ] Month/Week/Day UI - <transition> Toggled Views, Dark/Light View-Toggle
+- [ ] Pinia ToDo Store - Central ToDos, Sync Across Views, Custom Labels
+- [ ] Weather API - Daily/Weekly Banner, Month View Icons
+- [ ] Google Login Integration - Secure User Data
+- [ ] Final Polish/Testing - Stress Test, Prettify, BugFix
+- [ ] Ship to Netlify for Publishing
 
 How To Run Locally:
-1) Clone this Repo:
-  1 git clone https://github.com/poisonpsychicghost-hue/Vue-Calendar-Project.git
+- 1) Clone this Repo:
+  - 1 git clone https://github.com/poisonpsychicghost-hue/Vue-Calendar-Project.git
 
-2) Install Dependencies:
-  1 npm install
+- 2) Install Dependencies:
+  - 1 npm install
 
-3) Start Dev Server:
-  1 npm run dev
+- 3) Start Dev Server:
+  - 1 npm run dev
 
-4) Open Link in Browser:
-  https://localhost:5173
+- 4) Open Link in Browser:
+  - https://localhost:5173
