@@ -166,6 +166,7 @@ function nextDay() {
     display: flex;
     gap: .5rem;
     flex-wrap: wrap;
+    justify-content: space-between;
 }
 .day-todoCard.dark {
     display: table;
@@ -210,6 +211,7 @@ function nextDay() {
 }
 .day-notes.dark {
     display: table;
+    justify-self: right;
     transform: translateX(-10px);
     min-height: 2rem;
     max-height: 8.68rem;
@@ -226,7 +228,8 @@ function nextDay() {
 }
 .day-notes.light {
     display: table;
-    transform: translateX(-4px);
+    transform: translateX(-10px);
+    justify-self: right;
     min-height: 2rem;
     max-height: 8.68rem;
     min-width: 170px;
