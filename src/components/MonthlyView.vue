@@ -1,3 +1,35 @@
+<template>
+    <div :class="['monthly-view', theme]">
+
+        <!-- Month Year Nav Controls-->
+        <header :class="['month-header', theme]">
+            <!-- 
+            ***Un-comment out after wiring to Date API***
+            <select v-model="selectedYear" class="yearselect">
+                <option 
+                v-for="optionYear in yearOptions"
+                :key="optionYear"
+                :value="optionYear">
+                {{ optionYear }}
+            </option>
+            </select>
+            -->
+            <button @click="prevMonth">⬅️</button>
+            <span>{{ monthName }} {{ year }}</span>
+            <button @click="nextMonth">➡️</button>
+        </header>
+        
+        <!-- Calendar Grid-->
+        <div class="grid">
+            <div :class="['weekday', theme]" v-for="day in weekdays" :key="day">{{ day }}</div>
+            <div :class="['day-cell', theme, {today: day.isToday}]" v-for="day in days" :key="day.date" >
+                {{ day.number }}
+                <!--Weather Icon and Color Tags-->
+            </div>
+        </div>
+    </div>
+</template>
+
 <script setup>
 import { ref } from 'vue'
 
@@ -35,8 +67,8 @@ const days = [
     {date: '2026-05-21', number: 21, isToday: false},
     {date: '2026-05-22', number: 22, isToday: false},
     {date: '2026-05-23', number: 23, isToday: false},
-    {date: '2026-05-24', number: 24, isToday: true},
-    {date: '2026-05-25', number: 25, isToday: false},
+    {date: '2026-05-24', number: 24, isToday: false},
+    {date: '2026-05-25', number: 25, isToday: true},
     {date: '2026-05-26', number: 26, isToday: false},
     {date: '2026-05-27', number: 27, isToday: false},
     {date: '2026-05-28', number: 28, isToday: false},
@@ -54,38 +86,6 @@ function nextMonth() {
 }
 
 </script>
-
-<template>
-    <div :class="['monthly-view', theme]">
-
-        <!-- Month Year Nav Controls-->
-        <header :class="['month-header', theme]">
-            <!-- 
-            ***Un-comment out after wiring to Date API***
-            <select v-model="selectedYear" class="yearselect">
-                <option 
-                v-for="optionYear in yearOptions"
-                :key="optionYear"
-                :value="optionYear">
-                {{ optionYear }}
-            </option>
-            </select>
-            -->
-            <button @click="prevMonth">⬅️</button>
-            <span>{{ monthName }} {{ year }}</span>
-            <button @click="nextMonth">➡️</button>
-        </header>
-        
-        <!-- Calendar Grid-->
-        <div class="grid">
-            <div :class="['weekday', theme]" v-for="day in weekdays" :key="day">{{ day }}</div>
-            <div :class="['day-cell', theme, {today: day.isToday}]" v-for="day in days" :key="day.date" >
-                {{ day.number }}
-                <!--Weather Icon and Color Tags-->
-            </div>
-        </div>
-    </div>
-</template>
 
 <style scoped>
 .monthly-view.dark {

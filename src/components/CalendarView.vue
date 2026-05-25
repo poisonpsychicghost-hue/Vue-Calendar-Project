@@ -8,7 +8,10 @@ const props = defineProps(['theme'])
 
 <template>
     <div>
+
+
+
        <!-- <MonthlyView :theme="theme" /> -->
-        <WeeklyView  />
+        <WeeklyView :theme="theme" />
     </div>
 </template>
