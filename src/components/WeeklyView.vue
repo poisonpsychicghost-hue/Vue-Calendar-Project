@@ -85,7 +85,7 @@ function nextWeek() {
   min-height: 120px;
   border-radius: 0.7rem;
   padding: 0.8rem;
-  box-shadow: 0 2px 8px #0002;
+  box-shadow: 2px 8px #0002;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -98,7 +98,7 @@ function nextWeek() {
   min-height: 120px;
   border-radius: 0.7rem;
   padding: 0.8rem;
-  box-shadow: 0 2px 8px #0002;
+  box-shadow: 2px 8px #0002;
   display: flex;
   flex-direction: column;
   align-items: flex-start;

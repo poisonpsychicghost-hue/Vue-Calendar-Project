@@ -1,18 +1,39 @@
 <script setup>
-import { ref } from 'vue'
-import MonthlyView from './MonthlyView.vue'
+import { ref, computed } from 'vue';
+import MonthlyView from './MonthlyView.vue';
 import WeeklyView from './WeeklyView.vue';
+import DailyView from './DailyView.vue'
 
-const props = defineProps(['theme'])
+const props = defineProps(['theme']);
+const currentView = ref('month'); // 'month', 'week', 'day'
+
+function showMonth() { currentView.value = 'month' };
+function showWeek() { currentView.value = 'week'}
+function showDay() { currentView.value = 'day'}
+
+const getViewComponent = computed(() => {
+    if (currentView.value === 'month') return MonthlyView
+    if (currentView.value === 'week') return WeeklyView
+    return DailyView
+} 
+);
+
 </script>
 
 <template>
     <div>
         <div :class="['transition-tabs', theme]">
-            <button :class="['tab', theme]">Test1</button>
-            <button :class="['tab', theme]">Test2</button>
-            <button :class="['tab', theme]">Test3</button>
+            <button :class="['tab', theme]" @click="showMonth">Month</button>
+            <button :class="['tab', theme]" @click="showWeek">Week</button>
+            <button :class="['tab', theme]" @click="showDay">Day</button>
         </div>
+        <transition name="fade" mode="out-in">
+            <component
+            :is="getViewComponent"
+            :theme="theme"
+            :key="currentView"
+            />
+        </transition>
         <!-- <MonthlyView :theme="theme" /> 
        <WeeklyView :theme="theme" /> -->
     </div>
@@ -43,5 +64,13 @@ const props = defineProps(['theme'])
 .tab.light {
     color: #3f0c6c;
     min-width: 8rem;
+}
+.fade-enter-active, .fade-leave-active {
+    opacity: 0.65;
+    transition: opacity 0.25s;
+}
+.fade-enter-from, .fade-leave-to {
+    opacity: 0.12575;
+    transition: opacity 0.25s;
 }
 </style>

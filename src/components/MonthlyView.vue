@@ -100,12 +100,10 @@ function nextMonth() {
 }
 .month-header {
     display: flex;
-    justify-content: center;
-    align-items: center;
+    justify-content: space-between;
     font-size: 1.25rem;
-    gap: 2rem;
     margin-bottom: 1.5rem;
-    border: 20px 2px inset #9b952a;
+    border:  2px inset #242c2e;
 }
 .grid {
     display: grid;
