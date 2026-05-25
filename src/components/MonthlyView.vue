@@ -4,6 +4,9 @@ import { ref } from 'vue'
 const props = defineProps(['theme'])
 const monthName = ref('May')
 const year = ref(2026)
+// const firstDay = new Date(year.value, monthIndex, 1)
+// const firstWeekday = firstDay.getDay() // 0 (Sun) to 6 (Sat)
+// Add empty slots to `days` before filling real days
 
 //Dummy Placeholders — Replace with API Calendar Logic Later
 const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -57,6 +60,17 @@ function nextMonth() {
 
         <!-- Month Year Nav Controls-->
         <header :class="['month-header', theme]">
+            <!-- 
+            ***Un-comment out after wiring to Date API***
+            <select v-model="selectedYear" class="yearselect">
+                <option 
+                v-for="optionYear in yearOptions"
+                :key="optionYear"
+                :value="optionYear">
+                {{ optionYear }}
+            </option>
+            </select>
+            -->
             <button @click="prevMonth">⬅️</button>
             <span>{{ monthName }} {{ year }}</span>
             <button @click="nextMonth">➡️</button>
@@ -147,6 +161,15 @@ function nextMonth() {
     padding: 0.5rem;
     color: #3f0c6c;
     font-size: 1rem;
+}
+.year-select {
+  margin-left: 1rem;
+  padding: 0.2rem 0.5rem;
+  font-size: 1rem;
+  border-radius: 0.4rem;
+  border: 1px solid #aaa;
+  background: #232249;
+  color: #f9f9f9;
 }
 
 </style>
