@@ -43,6 +43,7 @@ function handleAuth() {
 <style scoped>
 .app-bg.dark {
     min-height: 100vh;
+    min-width: 100vw;
     background: #1b1522;
     color: #c6d7e7;
     transition: background 0.2s, color 0.2s;
@@ -50,6 +51,7 @@ function handleAuth() {
 }
 .app-bg.light {
     min-height: 100vh;
+    min-width: 100vw;
     background: #8d8e92;
     color: #15192e;
     transition: background 0.2s, color 0.2s;
@@ -62,7 +64,8 @@ function handleAuth() {
 }
 .main-window {
     margin: 0 auto;
-    max-width: 1080px;
+    max-width: 100vw;
+    min-width: 100vw;
     max-height: 120vh;
     padding: 2rem;
     border-radius: 1.2rem; 
