@@ -42,17 +42,13 @@ function handleAuth() {
 
 <style scoped>
 .app-bg.dark {
-    min-height: 100vh;
-    min-width: 100vw;
     background: #1b1522;
     color: #c6d7e7;
     transition: background 0.2s, color 0.2s;
 
 }
 .app-bg.light {
-    min-height: 100vh;
-    min-width: 100vw;
-    background: #8d8e92;
+    background: #8d8e92f5;
     color: #15192e;
     transition: background 0.2s, color 0.2s;
 }
@@ -63,14 +59,15 @@ function handleAuth() {
     padding: 1rem 2rem 0 0;
 }
 .main-window {
-    margin: 0 auto;
-    max-width: 100vw;
-    min-width: 100vw;
-    max-height: 120vh;
-    padding: 2rem;
+    margin: 2rem auto;
+    max-width: 900px;
+    min-width: 320px;
+    width: 90vw;
+    padding: 2rem 1rem;
     border-radius: 1.2rem; 
-    box-shadow: 0 4px 24px rgba(111, 70, 146, 0.416);
-    background: var(--main-bg, rgba(25, 17, 65, 0.215));
+    box-shadow: 0 4px 24px rgba(151, 75, 218, 0.16); /* softer shadow for less pop */
+    background: inherit;
+    overflow-x: auto;
 }
 .main-window h1,
 .main-window h2,
@@ -89,8 +86,10 @@ button {
 }
 footer {
     display: flex;
-    align-self: bottom;
-    justify-content: space-between;
-    font-size: x-small;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.88rem;
+    padding: 0.5rem 0;
+    min-height: 2rem;
 }
 </style>

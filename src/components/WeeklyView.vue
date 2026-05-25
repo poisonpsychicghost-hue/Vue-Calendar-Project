@@ -70,6 +70,7 @@ function nextWeek() {
   display: flex;
   justify-content: center;
   align-items: center;
+  border: 2px inset #242c2e;
   gap: 2rem;
   margin-bottom: 1rem;
 }

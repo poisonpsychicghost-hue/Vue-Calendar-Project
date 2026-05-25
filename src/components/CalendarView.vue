@@ -41,29 +41,29 @@ const getViewComponent = computed(() => {
 
 <style scoped>
 .transition-tabs.dark {
-    display: inline flex;
+    display: inline-flex;
     justify-content: space-evenly;
-    gap: 1.5rem;
-    border-radius: 5%;
+    gap: .25rem;
+    border-radius: .7rem;
     background: #343049;
     box-shadow: 5px 0 0 2px blur #000;
 }
 .transition-tabs.light {
-    display: inline flex;
+    display: inline-flex;
     justify-content: space-evenly;
-    gap: 1.5rem;
-    border-radius: 5%;
+    gap: .25rem;
+    border-radius: .7rem;
     background: #776ea8;
     box-shadow: 5px 0 0 2px blur #b8abab;
 }
 .tab.dark {
     color: #dbc9ff;
-    min-width: 8rem;
+    min-width: 13rem;
     
 }
 .tab.light {
     color: #3f0c6c;
-    min-width: 8rem;
+    min-width: 13rem;
 }
 .fade-enter-active, .fade-leave-active {
     opacity: 0.65;

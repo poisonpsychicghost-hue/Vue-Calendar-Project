@@ -90,19 +90,20 @@ function nextMonth() {
 <style scoped>
 .monthly-view.dark {
     background: var(--main-bg, #30335b);
-    padding: 2rem;
+    padding: 1rem;
     border-radius: 1rem;
 }
 .monthly-view.light {
     background: var(--main-bg, #5d5f7e);
-    padding: 2rem;
+    padding: 1rem;
     border-radius: 1rem;
 }
 .month-header {
     display: flex;
     justify-content: space-between;
-    font-size: 1.25rem;
-    margin-bottom: 1.5rem;
+    font-size: 1rem;
+    margin-bottom: .5rem;
+    padding: o.5rem 0;
     border:  2px inset #242c2e;
 }
 .grid {
@@ -146,19 +147,23 @@ function nextMonth() {
     background: #548a7a;
     min-height: 56px;
     border-radius: 0.5rem;
+    border: 2px solid #dfc241;
     text-align: right;
     padding: 0.5rem;
     color: #6640b2;
     font-size: 1rem;
+    font-style: bolder;
 }
 .day-cell.light.today {
     background: #548a7a;
     min-height: 56px;
     border-radius: 0.5rem;
+    border: 2px solid #dfc241;
     text-align: right;
     padding: 0.5rem;
     color: #3f0c6c;
     font-size: 1rem;
+    font-style: bolder;
 }
 .year-select {
   margin-left: 1rem;

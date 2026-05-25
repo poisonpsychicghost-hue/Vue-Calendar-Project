@@ -21,10 +21,10 @@ function nextDay() {
     <div :class="['daily-view', theme]">
         <div :class="['daily-card', theme]">
             <header :class="['date-nav', theme]">
-                <button onclick="prevDay">⬅️</button>
+                <button @click="prevDay">⬅️</button>
                 <!-- <select> for dropdown menu with date select-->
                 <p>Day Select</p>
-                <button onclick="nextDay">➡️</button>
+                <button @click="nextDay">➡️</button>
             </header>
             <div :class="['day-name', theme]"><span>{{ day.name }}</span><span>{{ day.date }}</span></div>
             <div :class="['weather-banner', theme]"><span>Today Has Weather</span><span>{{ weatherIcon }}</span></div>
@@ -32,24 +32,26 @@ function nextDay() {
                 <div :class="['day-todoCard', theme]"> <!-- Make Expand/Scroll by User for More ToDo View-->
                     <p>TODOs:</p>
                     <ul class="day-todos">
-                        <!--add logic to list all todos & make movable-->
-                        <li>Test</li>
+                        <li v-for="(todo, idx) in day.todos" :key="idx">
+                            {{ todo.title }}<span v-if="todo.details">: {{ todo.details }}</span>
+                        </li>
                     </ul>
                     <div :class="['todo-inputBox', theme]">
                         <p>Add TODOs</p>
-                        <textarea > {{  }}</textarea>
+                        <textarea placeholder="TODO Title..."></textarea>
+                        <textarea placeholder="Add a TODO..."></textarea>
                     </div>
                 </div>
                 <div :class="['day-notes', theme]">
                     <p>Daily Notes</p>
-                    <textarea> {{  }}</textarea>
+                    <textarea  v-model="day.note"></textarea>
                 </div>
             </div>
         </div>
     </div>
 </template>
 
-<style scope>
+<style scoped>
 .daily-view.dark {
 
     justify-content: center;
@@ -135,15 +137,18 @@ function nextDay() {
 }
 .lower-block {
     display: flex;
-    justify-content: space-between;
-    gap: .25rem;
+    gap: .5rem;
+    flex-wrap: wrap;
 }
 .day-todoCard.dark {
     display: table;
+    flex: 1 1 45%;
     justify-self: left;
     min-height: 2rem;
-    min-width: 15rem;
-    margin: 2px;
+    max-width: 280px;
+    min-width: 170px;
+    margin: 0.2rem 0;
+    padding: .5rem;
     justify-content: space-between;
     box-shadow: 2px 2px #272837;
     border: 4px ridge #30335b;
@@ -152,15 +157,29 @@ function nextDay() {
 }
 .day-todoCard.light {
     display: table;
+    flex: 1 1 45%;
     justify-self: left;
     min-height: 2rem;
-    min-width: 15rem;
-    margin: 2px;
+    max-width: 280px;
+    min-width: 170px;
+    margin: .2rem 0;
+    padding: .5rem;
     justify-content: space-between;
     box-shadow: 2px 2px #272837;
     border: 4px ridge #30335b;
     background: #6658b4;
     color: #351bb6;
+}
+.todo-inputBox {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    margin-top: .3rem;
+}
+.todo-inputBox.dark textarea {
+    min-height: 1.4rem;
+    resize: vertical;
+    font-size: 1rem;
 }
 .day-notes.dark {
     display: table;
@@ -168,8 +187,11 @@ function nextDay() {
     transform: translateX(-4px);
     min-height: 2rem;
     max-height: 8.68rem;
-    min-width: 15rem;
-    margin: 2px;
+    min-width: 170px;
+    max-width: 280px;
+    flex: 1 1 45%;
+    margin: .2rem 0;
+    padding: .5rem;
     justify-content: space-between;
     box-shadow: 2px 2px #272837;
     border: 4px ridge #30335b;
@@ -182,8 +204,11 @@ function nextDay() {
     transform: translateX(-4px);
     min-height: 2rem;
     max-height: 8.68rem;
-    min-width: 15rem;
-    margin: 2px;
+    min-width: 170px;
+    max-width: 280px;
+    flex: 1 1 45%;
+    margin: .2rem 0;
+    padding: .5rem;
     justify-content: space-between;
     box-shadow: 2px 2px #272837;
     border: 4px ridge #30335b;
