@@ -1,13 +1,24 @@
 <script setup>
-import { ref, reactive } from 'vue';
+import { ref, reactive, computed, onMounted, watch } from 'vue';
 
 const props = defineProps(['theme']);
+const noteKey = computed(() => `note_${day.date}`);
+const noteText = ref('');
 
 //PlaceHolder Day data
 const newTodoTitle = ref('');
 const newTodoDetails = ref('');
 const day = reactive({name: 'Monday', date: '2026-05-25', todos: [{title: 'Work', details: 'Check Codebase'}, {title: 'Fun', details: 'Dance'}], note: "Type Note Here..."});
 const weatherIcon = '💨';
+
+onMounted(() => {
+    const savedNote = localStorage.getItem(noteKey.value)
+    noteText.value = savedNote ?? day.note ?? ''
+});
+
+watch(noteText, (val) => {
+    localStorage.setItem(noteKey.value, val)
+});
 
 function addTodo() {
   if (newTodoTitle.value.trim()) {
@@ -60,7 +71,7 @@ function nextDay() {
                 </div>
                 <div :class="['day-notes', theme]">
                     <p>Daily Notes</p>
-                    <textarea  v-model="day.note"></textarea>
+                    <textarea v-model="noteText" placeholder="Your daily notes..."></textarea>
                 </div>
             </div>
         </div>
