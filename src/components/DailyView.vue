@@ -1,11 +1,21 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, reactive } from 'vue';
 
-const props = defineProps(['theme'])
+const props = defineProps(['theme']);
 
 //PlaceHolder Day data
-const day = {name: 'Monday', date: '2026-05-25', todos: [{title: 'Work', details: 'Check Codebase'}, {title: 'Fun', details: 'Dance'}], note: "Type Note Here..."};
-const weatherIcon = '💨'
+const newTodoTitle = ref('');
+const newTodoDetails = ref('');
+const day = reactive({name: 'Monday', date: '2026-05-25', todos: [{title: 'Work', details: 'Check Codebase'}, {title: 'Fun', details: 'Dance'}], note: "Type Note Here..."});
+const weatherIcon = '💨';
+
+function addTodo() {
+  if (newTodoTitle.value.trim()) {
+    day.todos.push({ title: newTodoTitle.value.trim(), details: newTodoDetails.value.trim() })
+    newTodoTitle.value = ''
+    newTodoDetails.value = ''
+  }
+}
 
 function prevDay() {
 
@@ -36,10 +46,16 @@ function nextDay() {
                             {{ todo.title }}<span v-if="todo.details">: {{ todo.details }}</span>
                         </li>
                     </ul>
-                    <div :class="['todo-inputBox', theme]">
-                        <p>Add TODOs</p>
-                        <textarea placeholder="TODO Title..."></textarea>
-                        <textarea placeholder="Add a TODO..."></textarea>
+                    <div class="todo-inputBox">
+                            <label>
+                                Title:
+                                <input v-model="newTodoTitle" @keyup.enter="addTodo" />
+                            </label>
+                            <label>
+                                Details:
+                                <input v-model="newTodoDetails" @keyup.enter="addTodo" />
+                            </label>
+                        <button @click="addTodo">Add TODO</button>
                     </div>
                 </div>
                 <div :class="['day-notes', theme]">
@@ -183,8 +199,7 @@ function nextDay() {
 }
 .day-notes.dark {
     display: table;
-    justify-self: right;
-    transform: translateX(-4px);
+    transform: translateX(-10px);
     min-height: 2rem;
     max-height: 8.68rem;
     min-width: 170px;
@@ -200,7 +215,6 @@ function nextDay() {
 }
 .day-notes.light {
     display: table;
-    justify-self: right;
     transform: translateX(-4px);
     min-height: 2rem;
     max-height: 8.68rem;
