@@ -21,68 +21,57 @@
         
         <!-- Calendar Grid-->
         <div class="grid">
-            <div :class="['weekday', theme]" v-for="day in weekdays" :key="day">{{ day }}</div>
-            <div :class="['day-cell', theme, {today: day.isToday}]" v-for="day in days" :key="day.date" >
-                {{ day.number }}
-                <!--Weather Icon and Color Tags-->
-            </div>
-        </div>
+  <div :class="['weekday', theme]" v-for="d in weekdays" :key="d">{{ d }}</div>
+  <div
+    v-for="day in monthDays"
+    :key="day.dateStr"
+    :class="['day-cell', theme, {today: day.isToday, 'other-month': day.monthNum !== month.value }]"
+  >
+    {{ day.dayNum }}
+    <!-- Weather icon, ToDo count, etc. -->
+  </div>
+</div>
     </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { getMonthDays } from '../api/dateController'
+import { addMonths, subMonths } from 'date-fns'
 
-const props = defineProps(['theme'])
-const monthName = ref('May')
-const year = ref(2026)
-// const firstDay = new Date(year.value, monthIndex, 1)
-// const firstWeekday = firstDay.getDay() // 0 (Sun) to 6 (Sat)
-// Add empty slots to `days` before filling real days
 
-//Dummy Placeholders — Replace with API Calendar Logic Later
-const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-const days = [
-    //Import from Calendar API to Replace DateBoard
-    {date: '2026-05-01', number: 1, isToday: false},
-    {date: '2026-05-02', number: 2, isToday: false},
-    {date: '2026-05-03', number: 3, isToday: false},
-    {date: '2026-05-04', number: 4, isToday: false},
-    {date: '2026-05-05', number: 5, isToday: false},
-    {date: '2026-05-06', number: 6, isToday: false},
-    {date: '2026-05-07', number: 7, isToday: false},
-    {date: '2026-05-08', number: 8, isToday: false},
-    {date: '2026-05-09', number: 9, isToday: false},
-    {date: '2026-05-10', number: 10, isToday: false},
-    {date: '2026-05-11', number: 11, isToday: false},
-    {date: '2026-05-12', number: 12, isToday: false},
-    {date: '2026-05-13', number: 13, isToday: false},
-    {date: '2026-05-14', number: 14, isToday: false},
-    {date: '2026-05-15', number: 15, isToday: false},
-    {date: '2026-05-16', number: 16, isToday: false},
-    {date: '2026-05-17', number: 17, isToday: false},
-    {date: '2026-05-18', number: 18, isToday: false},
-    {date: '2026-05-19', number: 19, isToday: false},
-    {date: '2026-05-20', number: 20, isToday: false},
-    {date: '2026-05-21', number: 21, isToday: false},
-    {date: '2026-05-22', number: 22, isToday: false},
-    {date: '2026-05-23', number: 23, isToday: false},
-    {date: '2026-05-24', number: 24, isToday: false},
-    {date: '2026-05-25', number: 25, isToday: true},
-    {date: '2026-05-26', number: 26, isToday: false},
-    {date: '2026-05-27', number: 27, isToday: false},
-    {date: '2026-05-28', number: 28, isToday: false},
-    {date: '2026-05-29', number: 29, isToday: false},
-    {date: '2026-05-30', number: 30, isToday: false},
-    {date: '2026-05-31', number: 31, isToday: false}
+const props = defineProps(['theme']);
+const year = ref(new Date().getFullYear());
+const month = ref(new Date().getMonth()); //Jan = 0 - Dec = 11
+const monthDays = computed(() => getMonthDays(year.value, month.value));
+const monthNameList = [
+    {index: 0, name: 'January'}, 
+    {index: 1, name: 'February'}, 
+    {index: 2, name: 'March'}, 
+    {index: 3, name: 'April'}, 
+    {index: 4, name: 'May'},
+    {index: 5, name: 'June'},
+    {index: 6, name: 'July'},
+    {index: 7, name: 'August'},
+    {index: 8, name: 'September'},
+    {index: 9, name: 'October'},
+    {index: 10, name: 'November'},
+    {index: 11, name: 'December'}
+
 ]
+const monthName = computed(() => monthNameList[month.value].name)
+
 
 function prevMonth() {
-    //Fill in with API logic 
+  const date = subMonths(new Date(year.value, month.value, 1), 1)
+  year.value = date.getFullYear()
+  month.value = date.getMonth()
 }
 
 function nextMonth() {
-    //Fill in with API logic
+  const date = addMonths(new Date(year.value, month.value, 1), 1)
+  year.value = date.getFullYear()
+  month.value = date.getMonth()
 }
 
 </script>
@@ -103,7 +92,7 @@ function nextMonth() {
     justify-content: space-between;
     font-size: 1rem;
     margin-bottom: .5rem;
-    padding: o.5rem 0;
+    padding: 0.5rem 0;
     border:  2px inset #242c2e;
 }
 .grid {
