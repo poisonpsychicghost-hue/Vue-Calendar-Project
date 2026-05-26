@@ -1,24 +1,54 @@
 <script setup>
-import { ref, reactive, computed, onMounted, watch } from 'vue';
+import { ref, reactive, computed, watch, onMounted } from 'vue'
 
-const props = defineProps(['theme']);
-const noteKey = computed(() => `note_${day.date}`);
-const noteText = ref('');
+const props = defineProps(['theme'])
 
-//PlaceHolder Day data
-const newTodoTitle = ref('');
-const newTodoDetails = ref('');
-const day = reactive({name: 'Monday', date: '2026-05-25', todos: [{title: 'Work', details: 'Check Codebase'}, {title: 'Fun', details: 'Dance'}], note: "Type Note Here..."});
-const weatherIcon = '💨';
+const day = reactive({
+  name: 'Monday',
+  date: '2026-05-25',
+  todos: [
+    { title: 'Work', details: 'Check Codebase' },
+    { title: 'Fun', details: 'Dance' }
+  ]
+})
 
+// Unique storage keys for this day/date:
+const noteKey = computed(() => `note_${day.date}`)
+const todoKey = computed(() => `todos_${day.date}`)
+
+const noteText = ref('')
+const newTodoTitle = ref('')
+const newTodoDetails = ref('')
+
+// --- On mount, load both:
 onMounted(() => {
-    const savedNote = localStorage.getItem(noteKey.value)
-    noteText.value = savedNote ?? day.note ?? ''
-});
+  // Load note
+  const savedNote = localStorage.getItem(noteKey.value)
+  noteText.value = savedNote ?? ''
 
+  // Load todos
+  const savedTodos = localStorage.getItem(todoKey.value)
+  if (savedTodos) {
+    try {
+      day.todos = JSON.parse(savedTodos)
+    } catch {
+      day.todos = []
+    }
+  }
+})
+
+// --- Watch and persist independently:
 watch(noteText, (val) => {
-    localStorage.setItem(noteKey.value, val)
-});
+  localStorage.setItem(noteKey.value, val)
+})
+
+watch(
+  () => day.todos,
+  (val) => {
+    localStorage.setItem(todoKey.value, JSON.stringify(val))
+  },
+  { deep: true }
+)
 
 function addTodo() {
   if (newTodoTitle.value.trim()) {
