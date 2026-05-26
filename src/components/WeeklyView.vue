@@ -8,9 +8,9 @@ const props = defineProps(['theme'])
 const weekLabel = ref('May 19 - May 25, 2026');
 const weekDays = [
     {dayName: 'Sun', displayDate: '19', date: '2026-05-19', todos: [{title: 'Watch Ivy'}, {title: 'Code Calendar'}], weather: null},
-    {dayName: 'Mon', displayDate: '20', date: '2026-05-20', todos: [{title: 'Fur Party W Carri'}], weather: null},
+    {dayName: 'Mon', displayDate: '20', date: '2026-05-20', todos: [{title: 'Party W Carri'}], weather: null},
     {dayName: 'Teu', displayDate: '21', date: '2026-05-21', todos: [{title:'Nothing'}], weather: null},
-    {dayName: 'Wed', displayDate: '22', date: '2026-05-22', todos: [{title: "Bang Carri"}], weather: null},
+    {dayName: 'Wed', displayDate: '22', date: '2026-05-22', todos: [{title: "Hang W/ Carri"}], weather: null},
     {dayName: 'Thu', displayDate: '23', date: '2026-05-23', todos: [{title: "Disco Party "}], weather: null},
     {dayName: 'Fri', displayDate: '24', date: '2026-05-24', todos: [], weather: null},
     {dayName: 'Sat', displayDate: '25', date: '2026-05-25', todos: [], weather: null}
