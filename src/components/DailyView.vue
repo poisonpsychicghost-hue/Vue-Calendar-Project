@@ -1,22 +1,23 @@
 <script setup>
-import { ref, reactive, computed, watch, onMounted } from 'vue'
+import { ref, reactive, computed, watch, onMounted } from 'vue';
+import { format, addDays, subDays, getDay } from 'date-fns';
 
 const props = defineProps(['theme'])
 
-const day = reactive({
-  name: 'Monday',
-  date: '2026-05-25',
-  todos: [
-    { title: 'Work', details: 'Check Codebase' },
-    { title: 'Fun', details: 'Dance' }
-  ]
-})
+const current = ref(new Date());
+const todos = ref([]); // Wire up to Pinia
+const noteText = ref('');
+const weatherIcon = ref('⛅️'); // Wire to Weather API
+
+const formattedDate = computed(() => format(current.value, 'yyyy-MM-dd'));
+const weekDayName = computed(() => format(current.value, 'EEEE'));
+
 
 // Unique storage keys for this day/date:
-const noteKey = computed(() => `note_${day.date}`)
-const todoKey = computed(() => `todos_${day.date}`)
+const noteKey = computed(() => `note_${format(current.value, 'yyyy-MM-dd')}`);
+const todoKey = computed(() => `todos_${format(current.value, 'yyyy-MM-dd')}`);
 
-const noteText = ref('')
+
 const newTodoTitle = ref('')
 const newTodoDetails = ref('')
 const draggingIdx = ref(null)
@@ -31,9 +32,9 @@ onMounted(() => {
   const savedTodos = localStorage.getItem(todoKey.value)
   if (savedTodos) {
     try {
-      day.todos = JSON.parse(savedTodos)
+      todos.value = JSON.parse(savedTodos)
     } catch {
-      day.todos = []
+      todos.value = []
     }
   }
 })
@@ -43,8 +44,22 @@ watch(noteText, (val) => {
   localStorage.setItem(noteKey.value, val)
 })
 
+
+watch(todoKey, (newKey) => {
+  const saved = localStorage.getItem(newKey)
+  if (saved) {
+    try {
+      todos.value = JSON.parse(saved)
+    } catch {
+      todos.value = []
+    }
+  } else {
+    todos.value = []
+  }
+})
+
 watch(
-  () => day.todos,
+    todos,
   (val) => {
     localStorage.setItem(todoKey.value, JSON.stringify(val))
   },
@@ -53,7 +68,7 @@ watch(
 
 function addTodo() {
   if (newTodoTitle.value.trim()) {
-    day.todos.push({ title: newTodoTitle.value.trim(), details: newTodoDetails.value.trim() })
+    todos.value.push({ title: newTodoTitle.value.trim(), details: newTodoDetails.value.trim() })
     newTodoTitle.value = ''
     newTodoDetails.value = ''
   }
@@ -65,8 +80,8 @@ function handleDragStart(idx) {
 
 function handleDragOver(idx) {
     if (draggingIdx.value !== null && draggingIdx.value !== idx) {
-        const moved = day.todos.splice(draggingIdx.value, 1)[0]
-        day.todos.splice(idx, 0, moved)
+        const moved = todos.value.splice(draggingIdx.value, 1)[0]
+        todos.value.splice(idx, 0, moved)
         draggingIdx.value = idx
     }
 }
@@ -76,11 +91,11 @@ function handleDrop(idx) {
 }
 
 function prevDay() {
-
+    current.value = subDays(current.value, 1);
 }
 
 function nextDay() {
-
+    current.value = addDays(current.value, 1);
 }
 
 </script>
@@ -94,13 +109,13 @@ function nextDay() {
                 <p>Day Select</p>
                 <button @click="nextDay">➡️</button>
             </header>
-            <div :class="['day-name', theme]"><span>{{ day.name }}</span><span>{{ day.date }}</span></div>
+            <div :class="['day-name', theme]"><span>{{ weekDayName }}</span><span>{{ formattedDate }}</span></div>
             <div :class="['weather-banner', theme]"><span>Today Has Weather</span><span>{{ weatherIcon }}</span></div>
             <div class="lower-block">
                 <div :class="['day-todoCard', theme]"> <!-- Make Expand/Scroll by User for More ToDo View-->
                     <p>TODOs:</p>
                     <ul class="day-todos">
-                        <li v-for="(todo, idx) in day.todos" :key="idx"
+                        <li v-for="(todo, idx) in todos.value" :key="idx"
                             draggable="true"
                             @dragstart="handleDragStart(idx)"
                             @dragover.prevent="handleDragOver(idx)"
