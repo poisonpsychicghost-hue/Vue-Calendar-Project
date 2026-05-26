@@ -122,6 +122,7 @@ function nextMonth() {
     padding: 0.5rem;
     color: #dbc9ff;
     font-size: 1rem;
+    box-shadow: 2px 4px #0002;
 }
 .day-cell.light {
     background: #776ea8;
@@ -131,6 +132,7 @@ function nextMonth() {
     padding: 0.5rem;
     color: #3f0c6c;
     font-size: 1rem;
+    box-shadow: 2px 4px #0002;
 }
 .day-cell.dark.today {
     background: #548a7a;
