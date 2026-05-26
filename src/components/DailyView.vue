@@ -19,6 +19,7 @@ const todoKey = computed(() => `todos_${day.date}`)
 const noteText = ref('')
 const newTodoTitle = ref('')
 const newTodoDetails = ref('')
+const draggingIdx = ref(null)
 
 // --- On mount, load both:
 onMounted(() => {
@@ -58,6 +59,22 @@ function addTodo() {
   }
 }
 
+function handleDragStart(idx) {
+    draggingIdx.value = idx
+}
+
+function handleDragOver(idx) {
+    if (draggingIdx.value !== null && draggingIdx.value !== idx) {
+        const moved = day.todos.splice(draggingIdx.value, 1)[0]
+        day.todos.splice(idx, 0, moved)
+        draggingIdx.value = idx
+    }
+}
+
+function handleDrop(idx) {
+    draggingIdx.value = null
+}
+
 function prevDay() {
 
 }
@@ -83,7 +100,11 @@ function nextDay() {
                 <div :class="['day-todoCard', theme]"> <!-- Make Expand/Scroll by User for More ToDo View-->
                     <p>TODOs:</p>
                     <ul class="day-todos">
-                        <li v-for="(todo, idx) in day.todos" :key="idx">
+                        <li v-for="(todo, idx) in day.todos" :key="idx"
+                            draggable="true"
+                            @dragstart="handleDragStart(idx)"
+                            @dragover.prevent="handleDragOver(idx)"
+                            @drop="handleDrop(idx)">
                             {{ todo.title }}<span v-if="todo.details">: {{ todo.details }}</span>
                         </li>
                     </ul>
