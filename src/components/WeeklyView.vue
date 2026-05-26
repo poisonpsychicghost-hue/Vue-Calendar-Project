@@ -1,13 +1,37 @@
 <script setup>
-import { ref, computed } from 'vue'
-import { format, addWeeks, subWeeks, startOfWeek, eachDayOfInterval, isToday} from 'date-fns';
+import { ref, computed, watch } from 'vue'
+import { format, addWeeks, subWeeks, startOfWeek, endOfWeek, eachDayOfInterval, isToday, isSameYear} from 'date-fns';
 
-const props = defineProps(['theme'])
-const current = ref(new Date())
+const props = defineProps(['theme', 'month', 'year']);
+console.log('WeeklyView: props.year =', props.year)
 
+const current = ref(new Date());
+const selectedWeekIdx = ref(0);
+const weekOptions = computed(() => getWeeksOfYear(props.year));
+const selectedWeek = computed(() => {
+  if (!weekOptions.value.length) return null
+  if (selectedWeekIdx.value < 0 || selectedWeekIdx.value >= weekOptions.value.length) return null
+  return weekOptions.value[selectedWeekIdx.value]
+})
 
-//Placeholder weekDays...
+const weekDays = computed(() => {
+  if (!selectedWeek.value || !selectedWeek.value.start || isNaN(selectedWeek.value.start)) return []
+  const start = selectedWeek.value.start
+  const end = selectedWeek.value.end
+  if (!start || !end || isNaN(start.getTime()) || isNaN(end.getTime())) return []
+  const days = eachDayOfInterval({ start, end })
+  return days.map(date => ({
+      dateObj: date,
+      dateStr: format(date, 'yyyy-MM-dd'),
+      dayName: format(date, 'E'),
+      displayDate: format(date, 'd'),
+      isToday: isToday(date),
+      todos: []
+    }))
+})
+
 const weekLabel = computed(() => {
+  if (!weekDays.value.length) return ''
   const start = weekDays.value[0]?.dateObj
   const end = weekDays.value[6]?.dateObj
   if (!start || !end) return ''
@@ -15,28 +39,47 @@ const weekLabel = computed(() => {
   const endFmt = format(end, 'MMM d, yyyy')
   return `${startFmt} - ${endFmt}`
 });
-const weekDays = computed(() => {
-  const start = startOfWeek(current.value, {weekStartsOn: 0})
-  const days = eachDayOfInterval({
-    start, end: new Date(start.getFullYear(), start.getMonth(), start.getDate() + 6)
-  })
-  return days.map(date => ({
-    dateObj: date,
-    dateStr: format(date, 'yyyy-MM-dd'),
-    dayName: format(date, 'E'),
-    displayDate: format(date, 'd'),
-    isToday: isToday(date),
-    todos: []
-  }))
-});
+
 
 function prevWeek() {
-  current.value = subWeeks(current.value, 1)
+  if (selectedWeekIdx.value > 0) {
+    selectedWeekIdx.value -= 1
+  }
 }
 
 function nextWeek() {
-    current.value = addWeeks(current.value, 1)
+  if (selectedWeekIdx.value < weekOptions.value.length - 1) {
+    selectedWeekIdx.value += 1
+  }
 }
+
+function getWeeksOfYear(year) {
+  const weeks = []
+  let start = startOfWeek(new Date(Number(year), 0, 1), { weekStartsOn: 0 })
+  let weekNum = 1
+  while (isSameYear(start, new Date(year, 6, 1)) || (weekNum === 1)) {
+    const end = endOfWeek(start, { weekStartsOn: 0 })
+    weeks.push({
+      start,
+      end,
+      label: `Week ${weekNum}: ${format(start, 'MMM d')} - ${format(end, 'MMM d')}`
+    })
+    start = addWeeks(start, 1)
+    weekNum++
+    // If we pass Dec 31, we're done
+    if (start.getFullYear() > year && weekNum > 2) break
+  }
+  return weeks
+}
+
+function selectWeek(idx) {
+  selectedWeekIdx.value = idx
+  current.value = weekOptions.value[idx].start
+}
+
+watch(() => props.year, () => {
+  selectedWeekIdx.value = 0
+})
 
 </script>
 
@@ -45,7 +88,11 @@ function nextWeek() {
         <!-- Week/Month/Year, with nav (add prev/next week buttons as needed) -->
         <header :class="['week-header', theme]">
             <button @click="prevWeek">⬅️</button>
-            <span>Week of {{ weekLabel }}</span>
+            <select v-model="selectedWeekIdx">
+              <option v-for="(week, idx) in weekOptions" :key="idx" :value="idx">
+                {{ week.label }}
+              </option>
+            </select>
             <button @click="nextWeek">➡️</button>
             <!--Add in DropDown Menu with Week Select Choices By Year/Mo-->
         </header>
@@ -58,8 +105,8 @@ function nextWeek() {
                 </div>
                 <!--Top Three TODOS-->
                 <ul class="todo-list">
-                    <<li v-for="(todo, idx) in day.todos.slice(0, 3)" :key="idx">
-16                    {{ todo.title }}</li>
+                    <li v-for="(todo, idx) in day.todos.slice(0, 3)" :key="idx">
+                      {{ todo.title }}</li>
                 </ul>
                 <!-- Weather Banner/Icons -->
                  <div class="weather-banner">⛅️</div>

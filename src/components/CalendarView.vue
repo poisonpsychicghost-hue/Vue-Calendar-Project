@@ -19,11 +19,13 @@ const getViewComponent = computed(() => {
     return DailyView
 } 
 );
-const monthYearProps = computed(() => {
-  return currentView.value === 'month' 
-    ? { month: month.value, year: year.value, 'onUpdate:month': val => month.value = val, 'onUpdate:year': val => year.value = val }
-    : {}
-})
+
+const monthYearProps = computed(() => ({
+  month: month.value,
+  year: year.value,
+  'onUpdate:month': val => month.value = val,
+  'onUpdate:year': val => year.value = val
+}));
 
 </script>
 
