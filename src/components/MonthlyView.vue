@@ -3,19 +3,14 @@
 
         <!-- Month Year Nav Controls-->
         <header :class="['month-header', theme]">
-            <!-- 
-            ***Un-comment out after wiring to Date API***
-            <select v-model="selectedYear" class="yearselect">
-                <option 
-                v-for="optionYear in yearOptions"
-                :key="optionYear"
-                :value="optionYear">
-                {{ optionYear }}
-            </option>
-            </select>
-            -->
             <button @click="prevMonth">⬅️</button>
-            <span>{{ monthName }} {{ year }}</span>
+            <select :value="props.month" @change="updateMonth(Number($event.target.value))">
+  <option v-for="m in 12" :key="m-1" :value="m-1">{{ monthNameList[m-1] }}</option>
+            </select>
+            <span>{{ monthName }} {{ props.year }}</span>
+            <select :value="props.year" @change="updateYear(Number($event.target.value))">
+                <option v-for="y in yearOptions" :key="y" :value="y">{{ y }}</option>
+            </select>
             <button @click="nextMonth">➡️</button>
         </header>
         
@@ -25,7 +20,7 @@
   <div
     v-for="day in monthDays"
     :key="day.dateStr"
-    :class="['day-cell', theme, {today: day.isToday, 'other-month': day.monthNum !== month.value }]"
+    :class="['day-cell', theme, {today: day.isToday, 'other-month': day.monthNum !== props.month }]"
   >
     {{ day.dayNum }}
     <!-- Weather icon, ToDo count, etc. -->
@@ -40,38 +35,37 @@ import { getMonthDays } from '../api/dateController'
 import { addMonths, subMonths } from 'date-fns'
 
 
-const props = defineProps(['theme']);
+const props = defineProps(['theme', 'month', 'year']);
+const emit = defineEmits(['update:month', 'update:year']);
 const year = ref(new Date().getFullYear());
 const month = ref(new Date().getMonth()); //Jan = 0 - Dec = 11
-const monthDays = computed(() => getMonthDays(year.value, month.value));
+const monthDays = computed(() => getMonthDays(props.year, props.month));
 const monthNameList = [
-    {index: 0, name: 'January'}, 
-    {index: 1, name: 'February'}, 
-    {index: 2, name: 'March'}, 
-    {index: 3, name: 'April'}, 
-    {index: 4, name: 'May'},
-    {index: 5, name: 'June'},
-    {index: 6, name: 'July'},
-    {index: 7, name: 'August'},
-    {index: 8, name: 'September'},
-    {index: 9, name: 'October'},
-    {index: 10, name: 'November'},
-    {index: 11, name: 'December'}
-
+    'January', 'February', 'March', 'April',
+    'May', 'June', 'July', 'August', 
+    'September', 'October', 'November', 'December'
 ]
-const monthName = computed(() => monthNameList[month.value].name)
-
+const monthName = computed(() => monthNameList[props.month])
+const yearOptions = Array.from({ length: 31}, (_, i) => 2020 + i)
 
 function prevMonth() {
-  const date = subMonths(new Date(year.value, month.value, 1), 1)
-  year.value = date.getFullYear()
-  month.value = date.getMonth()
+  const date = subMonths(new Date(props.year, props.month, 1), 1)
+  props.year = date.getFullYear()
+  props.month = date.getMonth()
 }
 
 function nextMonth() {
-  const date = addMonths(new Date(year.value, month.value, 1), 1)
-  year.value = date.getFullYear()
-  month.value = date.getMonth()
+  const date = addMonths(new Date(props.year, props.month, 1), 1)
+  props.year = date.getFullYear()
+  props.month = date.getMonth()
+}
+
+function updateMonth(newMonth) {
+    emit('update:month', newMonth)
+}
+
+function updateYear(newYear) {
+    emit('update:year', newYear)
 }
 
 </script>

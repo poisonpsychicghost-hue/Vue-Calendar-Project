@@ -6,6 +6,8 @@ import DailyView from './DailyView.vue'
 
 const props = defineProps(['theme']);
 const currentView = ref('month'); // 'month', 'week', 'day'
+const year = ref(new Date().getFullYear())
+const month = ref(new Date().getMonth())
 
 function showMonth() { currentView.value = 'month' };
 function showWeek() { currentView.value = 'week'}
@@ -17,6 +19,11 @@ const getViewComponent = computed(() => {
     return DailyView
 } 
 );
+const monthYearProps = computed(() => {
+  return currentView.value === 'month' 
+    ? { month: month.value, year: year.value, 'onUpdate:month': val => month.value = val, 'onUpdate:year': val => year.value = val }
+    : {}
+})
 
 </script>
 
@@ -32,6 +39,7 @@ const getViewComponent = computed(() => {
             :is="getViewComponent"
             :theme="theme"
             :key="currentView"
+            v-bind="monthYearProps"
             />
         </transition>
         <!-- <MonthlyView :theme="theme" /> 
