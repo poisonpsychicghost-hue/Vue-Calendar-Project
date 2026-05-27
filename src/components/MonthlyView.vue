@@ -39,6 +39,7 @@ const props = defineProps(['theme', 'month', 'year']);
 const emit = defineEmits(['update:month', 'update:year', 'updateCurrentDate', 'update:view']);
 const year = ref(new Date().getFullYear());
 const month = ref(new Date().getMonth()); //Jan = 0 - Dec = 11
+const weekdays = ['Sunday', 'Monday', 'Teusday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 const monthDays = computed(() => getMonthDays(props.year, props.month));
 const monthNameList = [
     'January', 'February', 'March', 'April',

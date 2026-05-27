@@ -1,77 +1,33 @@
 <script setup>
 import { ref, reactive, computed, watch, onMounted } from 'vue';
 import { format, addDays, subDays, getDay } from 'date-fns';
+import { useCalendarStore } from '../stores/calendarStore';
 
 const props = defineProps(['theme', 'currentDate'])
+const store = useCalendarStore();
 
 const current = ref(props.currentDate);
-const todos = ref([]); // Wire up to Pinia
-const noteText = ref('');
+const dateStr = computed(() => props.currentDate.value ? props.currentDate.value.toISOString().split('T')[0] : '');
+const newTodoTitle = ref('');
+const newTodoDetails = ref('');
+const todos = computed(() => store.getTodos(dateStr.value));
+const note = computed({
+    get: () => store.getNote(dateStr.value),
+    set: val => store.setNote(dateStr.value, val)
+});
 const weatherIcon = ref('⛅️'); // Wire to Weather API
-
-const formattedDate = computed(() => format(current.value, 'yyyy-MM-dd'));
-const weekDayName = computed(() => format(current.value, 'EEEE'));
-
-
-// Unique storage keys for this day/date:
-const noteKey = computed(() => `note_${format(current.value, 'yyyy-MM-dd')}`);
-const todoKey = computed(() => `todos_${format(current.value, 'yyyy-MM-dd')}`);
-
-
-const newTodoTitle = ref('')
-const newTodoDetails = ref('')
 const draggingIdx = ref(null)
 
-// --- On mount, load both:
-onMounted(() => {
-  // Load note
-  const savedNote = localStorage.getItem(noteKey.value)
-  noteText.value = savedNote ?? ''
+function addTodo(title, details) {
+  store.addTodo(dateStr.value, { title, details })
+}
 
-  // Load todos
-  const savedTodos = localStorage.getItem(todoKey.value)
-  if (savedTodos) {
-    try {
-      todos.value = JSON.parse(savedTodos)
-    } catch {
-      todos.value = []
-    }
-  }
-})
+function removeTodo(idx) {
+  store.removeTodo(dateStr.value, idx)
+}
 
-// --- Watch and persist independently:
-watch(noteText, (val) => {
-  localStorage.setItem(noteKey.value, val)
-})
-
-
-watch(todoKey, (newKey) => {
-  const saved = localStorage.getItem(newKey)
-  if (saved) {
-    try {
-      todos.value = JSON.parse(saved)
-    } catch {
-      todos.value = []
-    }
-  } else {
-    todos.value = []
-  }
-})
-
-watch(
-    todos,
-  (val) => {
-    localStorage.setItem(todoKey.value, JSON.stringify(val))
-  },
-  { deep: true }
-)
-
-function addTodo() {
-  if (newTodoTitle.value.trim()) {
-    todos.value.push({ title: newTodoTitle.value.trim(), details: newTodoDetails.value.trim() })
-    newTodoTitle.value = ''
-    newTodoDetails.value = ''
-  }
+function setTodos(newList) {
+  store.setTodos(dateStr.value, newList)
 }
 
 function handleDragStart(idx) {
@@ -80,8 +36,10 @@ function handleDragStart(idx) {
 
 function handleDragOver(idx) {
     if (draggingIdx.value !== null && draggingIdx.value !== idx) {
-        const moved = todos.value.splice(draggingIdx.value, 1)[0]
-        todos.value.splice(idx, 0, moved)
+        const movedList = [...todos.value]
+        const [moved] = movedList.splice(draggingIdx.value, 1)
+        movedList.splice(idx, 0, moved)
+        setTodos(movedList)
         draggingIdx.value = idx
     }
 }
@@ -91,11 +49,11 @@ function handleDrop(idx) {
 }
 
 function prevDay() {
-    current.value = subDays(current.value, 1);
+    props.currentDate.value = subDays(current.value, 1);
 }
 
 function nextDay() {
-    current.value = addDays(current.value, 1);
+    props.currentDate.value = addDays(current.value, 1);
 }
 
 </script>
@@ -109,35 +67,36 @@ function nextDay() {
                 <p>Day Select</p>
                 <button @click="nextDay">➡️</button>
             </header>
-            <div :class="['day-name', theme]"><span>{{ weekDayName }}</span><span>{{ formattedDate }}</span></div>
+            <div :class="['day-name', theme]"><span>{{ current.value }}</span><span>{{ current }}</span></div>
             <div :class="['weather-banner', theme]"><span>Today Has Weather</span><span>{{ weatherIcon }}</span></div>
             <div class="lower-block">
                 <div :class="['day-todoCard', theme]"> <!-- Make Expand/Scroll by User for More ToDo View-->
                     <p>TODOs:</p>
                     <ul class="day-todos">
-                        <li v-for="(todo, idx) in todos.value" :key="idx"
+                        <li v-for="(todo, idx) in todos" :key="idx"
                             draggable="true"
                             @dragstart="handleDragStart(idx)"
                             @dragover.prevent="handleDragOver(idx)"
-                            @drop="handleDrop(idx)">
-                            {{ todo.title }}<span v-if="todo.details">: {{ todo.details }}</span>
+                            @drop="handleDrop">
+                                {{ todo.title }} <span v-if="todo.details">: {{ todo.details }}</span>
+                            <button @click="removeTodo(idx)">Remove</button>
                         </li>
                     </ul>
                     <div class="todo-inputBox">
-                            <label>
-                                Title:
-                                <input v-model="newTodoTitle" @keyup.enter="addTodo" />
-                            </label>
-                            <label>
-                                Details:
-                                <input v-model="newTodoDetails" @keyup.enter="addTodo" />
-                            </label>
-                        <button @click="addTodo">Add TODO</button>
+                        <label>
+                            Title:
+                            <input v-model="newTodoTitle" placeholder="Title"/>
+                        </label>
+                        <label>
+                            Details:
+                            <input v-model="newTodoDetails" placeholder="Details"/>
+                        </label>
+                        <button @click="addTodo(newTodoTitle, newTodoDetails)">Add ToDo</button>
                     </div>
                 </div>
                 <div :class="['day-notes', theme]">
                     <p>Daily Notes</p>
-                    <textarea v-model="noteText" placeholder="Your daily notes..."></textarea>
+                    <textarea v-model="note"></textarea>
                 </div>
             </div>
         </div>

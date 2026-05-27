@@ -89,7 +89,7 @@ function getWeeksOfYear(year) {
             v-bind="monthYearProps"
             :current-date="currentDate"
             :onUpdateCurrentDate="date => currentDate.value = new Date(date)"
-            @updateCurrentDate="gotToDay"
+            @updateCurrentDate="goToDay"
             @update:view="showDay"
             />
         </transition>
