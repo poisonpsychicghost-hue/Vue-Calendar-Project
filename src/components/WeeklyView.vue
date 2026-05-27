@@ -80,7 +80,6 @@ function goToDay(date) {
             <button @click="nextWeek">➡️</button>
             <!--Add in DropDown Menu with Week Select Choices By Year/Mo-->
         </header>
-        <div><h2> {{ month }}</h2></div>
         <div class="week-grid">
 
             <div 
