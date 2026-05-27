@@ -2,12 +2,13 @@
 import { ref, computed } from 'vue';
 import MonthlyView from './MonthlyView.vue';
 import WeeklyView from './WeeklyView.vue';
-import DailyView from './DailyView.vue'
+import DailyView from './DailyView.vue';
 
 const props = defineProps(['theme']);
 const currentView = ref('month'); // 'month', 'week', 'day'
-const year = ref(new Date().getFullYear())
-const month = ref(new Date().getMonth())
+const year = ref(new Date().getFullYear());
+const month = ref(new Date().getMonth());
+const currentDate = ref(new Date());
 
 function showMonth() { currentView.value = 'month' };
 function showWeek() { currentView.value = 'week'}
@@ -24,8 +25,16 @@ const monthYearProps = computed(() => ({
   month: month.value,
   year: year.value,
   'onUpdate:month': val => month.value = val,
-  'onUpdate:year': val => year.value = val
+  'onUpdate:year': val => year.value = val,
+  currentDate: currentDate.value,
+  onUpdateCurrentDate: date => currentDate.value = new Date(date)
+  
 }));
+
+function goToDay(date) {
+  currentDate.value = new Date(date)
+  currentView.value = 'day'
+}
 
 </script>
 
@@ -42,6 +51,10 @@ const monthYearProps = computed(() => ({
             :theme="theme"
             :key="currentView"
             v-bind="monthYearProps"
+            :current-date="currentDate"
+            :onUpdateCurrentDate="date => currentDate.value = new Date(date)"
+            @updateCurrentDate="gotToDay"
+            @update:view="showDay"
             />
         </transition>
         <!-- <MonthlyView :theme="theme" /> 

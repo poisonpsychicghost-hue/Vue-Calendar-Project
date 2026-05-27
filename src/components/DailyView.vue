@@ -2,9 +2,9 @@
 import { ref, reactive, computed, watch, onMounted } from 'vue';
 import { format, addDays, subDays, getDay } from 'date-fns';
 
-const props = defineProps(['theme'])
+const props = defineProps(['theme', 'currentDate'])
 
-const current = ref(new Date());
+const current = ref(props.currentDate);
 const todos = ref([]); // Wire up to Pinia
 const noteText = ref('');
 const weatherIcon = ref('⛅️'); // Wire to Weather API

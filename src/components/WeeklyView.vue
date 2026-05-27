@@ -4,6 +4,7 @@ import { format, addWeeks, subWeeks, startOfWeek, endOfWeek, eachDayOfInterval, 
 
 const props = defineProps(['theme', 'month', 'year']);
 console.log('WeeklyView: props.year =', props.year)
+const emit = defineEmits(['update:month', 'update:year', 'updateCurrentDate', 'update:view']);
 
 const current = ref(new Date());
 const selectedWeekIdx = ref(0);
@@ -77,6 +78,11 @@ function selectWeek(idx) {
   current.value = weekOptions.value[idx].start
 }
 
+function goToDay(date) {
+  emit('updateCurrentDate', date)
+  emit('update:view', 'day')
+}
+
 watch(() => props.year, () => {
   selectedWeekIdx.value = 0
 })
@@ -98,7 +104,12 @@ watch(() => props.year, () => {
         </header>
         <div class="week-grid">
 
-            <div v-for="day in weekDays" :key="day.dateStr" :class="['week-day', theme, { today: day.isToday }]">
+            <div 
+            v-for="day in weekDays" 
+            :key="day.dateStr" 
+            :class="['week-day', theme, { today: day.isToday }]"
+            @click="goToDay(day.dateObj)"
+            >
                 <div :class="['date-label', theme]">
                     <span>{{ day.dayName }}</span>
                     <span>{{ day.displayDate }}</span>

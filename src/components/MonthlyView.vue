@@ -16,16 +16,16 @@
         
         <!-- Calendar Grid-->
         <div class="grid">
-  <div :class="['weekday', theme]" v-for="d in weekdays" :key="d">{{ d }}</div>
-  <div
-    v-for="day in monthDays"
-    :key="day.dateStr"
-    :class="['day-cell', theme, {today: day.isToday, 'other-month': day.monthNum !== props.month }]"
-  >
-    {{ day.dayNum }}
-    <!-- Weather icon, ToDo count, etc. -->
-  </div>
-</div>
+            <div :class="['weekday', theme]" v-for="d in weekdays" :key="d">{{ d }}</div>
+                <div
+                    v-for="day in monthDays"
+                    :key="day.dateStr"
+                    :class="['day-cell', theme, {today: day.isToday, 'other-month': day.monthNum !== month.value }]"
+                    @click="goToDay(day.dateObj)"
+                    >
+                    {{ day.dayNum }}
+                </div>
+        </div>
     </div>
 </template>
 
@@ -36,7 +36,7 @@ import { addMonths, subMonths } from 'date-fns'
 
 
 const props = defineProps(['theme', 'month', 'year']);
-const emit = defineEmits(['update:month', 'update:year']);
+const emit = defineEmits(['update:month', 'update:year', 'updateCurrentDate', 'update:view']);
 const year = ref(new Date().getFullYear());
 const month = ref(new Date().getMonth()); //Jan = 0 - Dec = 11
 const monthDays = computed(() => getMonthDays(props.year, props.month));
@@ -66,6 +66,12 @@ function updateMonth(newMonth) {
 
 function updateYear(newYear) {
     emit('update:year', newYear)
+}
+
+
+function goToDay(date) {
+  emit('updateCurrentDate', date)
+  emit('update:view', 'day')
 }
 
 </script>
