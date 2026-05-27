@@ -2,17 +2,24 @@
 import { ref, computed, watch } from 'vue'
 import { format, addWeeks, subWeeks, startOfWeek, endOfWeek, eachDayOfInterval, isToday, isSameYear} from 'date-fns';
 
-const props = defineProps(['theme', 'month', 'year']);
+const props = defineProps([
+  'theme',
+  'month',
+  'year',
+  'selectedWeekIdx',
+  'weekOptions',
+  'currentDate'
+]);
 console.log('WeeklyView: props.year =', props.year)
-const emit = defineEmits(['update:month', 'update:year', 'updateCurrentDate', 'update:view']);
+const emit = defineEmits(['update:month', 'update:year', 'updateCurrentDate', 'update:view', 'update:selectedWeekIdx']);
 
 const current = ref(new Date());
-const selectedWeekIdx = ref(0);
-const weekOptions = computed(() => getWeeksOfYear(props.year));
+
+
 const selectedWeek = computed(() => {
-  if (!weekOptions.value.length) return null
-  if (selectedWeekIdx.value < 0 || selectedWeekIdx.value >= weekOptions.value.length) return null
-  return weekOptions.value[selectedWeekIdx.value]
+  if (!props.weekOptions.length) return null
+  if (props.selectedWeekIdx < 0 || props.selectedWeekIdx >= props.weekOptions.length) return null
+  return props.weekOptions[props.selectedWeekIdx]
 })
 
 const weekDays = computed(() => {
@@ -43,39 +50,13 @@ const weekLabel = computed(() => {
 
 
 function prevWeek() {
-  if (selectedWeekIdx.value > 0) {
-    selectedWeekIdx.value -= 1
-  }
+  if (props.selectedWeekIdx > 0) emit('update:selectedWeekIdx', props.selectedWeekIdx - 1)
 }
-
 function nextWeek() {
-  if (selectedWeekIdx.value < weekOptions.value.length - 1) {
-    selectedWeekIdx.value += 1
-  }
+  if (props.selectedWeekIdx < props.weekOptions.length - 1) emit('update:selectedWeekIdx', props.selectedWeekIdx + 1)
 }
-
-function getWeeksOfYear(year) {
-  const weeks = []
-  let start = startOfWeek(new Date(Number(year), 0, 1), { weekStartsOn: 0 })
-  let weekNum = 1
-  while (isSameYear(start, new Date(year, 6, 1)) || (weekNum === 1)) {
-    const end = endOfWeek(start, { weekStartsOn: 0 })
-    weeks.push({
-      start,
-      end,
-      label: `Week ${weekNum}: ${format(start, 'MMM d')} - ${format(end, 'MMM d')}`
-    })
-    start = addWeeks(start, 1)
-    weekNum++
-    // If we pass Dec 31, we're done
-    if (start.getFullYear() > year && weekNum > 2) break
-  }
-  return weeks
-}
-
-function selectWeek(idx) {
-  selectedWeekIdx.value = idx
-  current.value = weekOptions.value[idx].start
+function selectWeek(evt) {
+  emit('update:selectedWeekIdx', Number(evt.target.value))
 }
 
 function goToDay(date) {
@@ -83,9 +64,6 @@ function goToDay(date) {
   emit('update:view', 'day')
 }
 
-watch(() => props.year, () => {
-  selectedWeekIdx.value = 0
-})
 
 </script>
 
@@ -94,7 +72,7 @@ watch(() => props.year, () => {
         <!-- Week/Month/Year, with nav (add prev/next week buttons as needed) -->
         <header :class="['week-header', theme]">
             <button @click="prevWeek">⬅️</button>
-            <select v-model="selectedWeekIdx">
+            <select :value="props.selectedWeekIdx" @change="selectWeek">
               <option v-for="(week, idx) in weekOptions" :key="idx" :value="idx">
                 {{ week.label }}
               </option>
@@ -102,6 +80,7 @@ watch(() => props.year, () => {
             <button @click="nextWeek">➡️</button>
             <!--Add in DropDown Menu with Week Select Choices By Year/Mo-->
         </header>
+        <div><h2> {{ month }}</h2></div>
         <div class="week-grid">
 
             <div 

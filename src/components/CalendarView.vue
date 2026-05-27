@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue';
+import { format, addWeeks, subWeeks, startOfWeek, endOfWeek, eachDayOfInterval, isToday, isSameYear, isSameWeek } from 'date-fns';
 import MonthlyView from './MonthlyView.vue';
 import WeeklyView from './WeeklyView.vue';
 import DailyView from './DailyView.vue';
@@ -8,11 +9,16 @@ const props = defineProps(['theme']);
 const currentView = ref('month'); // 'month', 'week', 'day'
 const year = ref(new Date().getFullYear());
 const month = ref(new Date().getMonth());
-const currentDate = ref(new Date());
 
-function showMonth() { currentView.value = 'month' };
-function showWeek() { currentView.value = 'week'}
-function showDay() { currentView.value = 'day'}
+const weekOptions = computed(() => getWeeksOfYear(year.value))
+const currentDate = ref(new Date());
+const initialWeekIdx = computed(() => 
+    weekOptions.value.findIndex(
+        week => isSameWeek(currentDate.value, week.start, { weekStartsOn: 0 })
+    )
+) 
+const selectedWeekIdx = ref(initialWeekIdx.value >= 0 ? initialWeekIdx.value: 0)
+
 
 const getViewComponent = computed(() => {
     if (currentView.value === 'month') return MonthlyView
@@ -24,16 +30,46 @@ const getViewComponent = computed(() => {
 const monthYearProps = computed(() => ({
   month: month.value,
   year: year.value,
+  selectedWeekIdx: selectedWeekIdx.value,
+  weekOptions: weekOptions.value,
   'onUpdate:month': val => month.value = val,
   'onUpdate:year': val => year.value = val,
+  'onUpdate:selectedWeekIdx': idx => selectedWeekIdx.value = idx,
   currentDate: currentDate.value,
   onUpdateCurrentDate: date => currentDate.value = new Date(date)
+
   
 }));
+
+
+
+function showMonth() { currentView.value = 'month' };
+function showWeek() { currentView.value = 'week'}
+function showDay() { currentView.value = 'day'}
+
 
 function goToDay(date) {
   currentDate.value = new Date(date)
   currentView.value = 'day'
+}
+
+function getWeeksOfYear(year) {
+  const weeks = []
+  let start = startOfWeek(new Date(Number(year), 0, 1), { weekStartsOn: 0 })
+  let weekNum = 1
+  while (isSameYear(start, new Date(year, 6, 1)) || (weekNum === 1)) {
+    const end = endOfWeek(start, { weekStartsOn: 0 })
+    weeks.push({
+      start,
+      end,
+      label: `Week ${weekNum}: ${format(start, 'MMM d')} - ${format(end, 'MMM d')}`
+    })
+    start = addWeeks(start, 1)
+    weekNum++
+    // If we pass Dec 31, we're done
+    if (start.getFullYear() > year && weekNum > 2) break
+  }
+  return weeks
 }
 
 </script>
