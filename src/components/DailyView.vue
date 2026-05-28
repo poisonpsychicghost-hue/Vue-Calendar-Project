@@ -1,12 +1,11 @@
 <script setup>
-import { ref, reactive, computed, watch, onMounted } from 'vue';
-import { format, addDays, subDays, getDay } from 'date-fns';
+import { ref, computed} from 'vue';
+import { format, addDays, subDays } from 'date-fns';
 import { useCalendarStore } from '../stores/calendarStore';
 
-const props = defineProps(['theme', 'currentDate'])
+const props = defineProps(['theme']);
 const store = useCalendarStore();
-const emit = defineEmits(['updateCurrentDate']);
-const dateStr = computed(() => props.currentDate ? props.currentDate.toISOString().split('T')[0] : '');
+const dateStr = computed(() => store.viewDate.toISOString().split('T')[0]);
 const newTodoTitle = ref('');
 const newTodoDetails = ref('');
 const todos = computed(() => store.getTodos(dateStr.value));
@@ -14,7 +13,7 @@ const note = computed({
     get: () => store.getNote(dateStr.value),
     set: val => store.setNote(dateStr.value, val)
 });
-const weatherIcon = ref('⛅️'); // Wire to Weather API
+const weatherIcon = computed(() => '⛅️'); // Wire to Weather API
 const draggingIdx = ref(null)
 
 function addTodo(title, details) {
@@ -48,11 +47,15 @@ function handleDrop(idx) {
 }
 
 function prevDay() {
-    emit('updateCurrentDate'), subDays(props.currentDate, 1);
+    let date = new Date(store.viewDate)
+    date.setDate(date.getDate() - 1)
+    store.viewDate = date
 }
 
 function nextDay() {
-    emit('updateCurrentDate'), addDays(props.currentDate, 1);
+    let date = new Date(store.viewDate)
+    date.setDate(date.getDate() + 1)
+    store.viewDate = date
 }
 
 </script>
@@ -66,7 +69,7 @@ function nextDay() {
                 <p>Day Select</p>
                 <button @click="nextDay">➡️</button>
             </header>
-            <div :class="['day-name', theme]"><span>{{ 'Test' }}</span></div>
+            <div :class="['day-name', theme]"><span>{{ dateStr }}</span></div>
             <div :class="['weather-banner', theme]"><span>Today Has Weather</span><span>{{ weatherIcon }}</span></div>
             <div class="lower-block">
                 <div :class="['day-todoCard', theme]"> <!-- Make Expand/Scroll by User for More ToDo View-->

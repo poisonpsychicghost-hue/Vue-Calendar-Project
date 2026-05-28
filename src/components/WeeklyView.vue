@@ -1,26 +1,16 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
-import { format, addWeeks, subWeeks, startOfWeek, endOfWeek, eachDayOfInterval, isToday, isSameYear} from 'date-fns';
+import { format, eachDayOfInterval, isToday} from 'date-fns';
+import { useCalendarStore } from '../stores/calendarStore'
+import { getWeeksOfYear } from '../api/dateController'
 
-const props = defineProps([
-  'theme',
-  'month',
-  'year',
-  'selectedWeekIdx',
-  'weekOptions',
-  'currentDate'
-]);
-console.log('WeeklyView: props.year =', props.year)
-const emit = defineEmits(['update:month', 'update:year', 'updateCurrentDate', 'update:view', 'update:selectedWeekIdx']);
-
-const current = ref(new Date());
-
-
-const selectedWeek = computed(() => {
-  if (!props.weekOptions.length) return null
-  if (props.selectedWeekIdx < 0 || props.selectedWeekIdx >= props.weekOptions.length) return null
-  return props.weekOptions[props.selectedWeekIdx]
-})
+const store = useCalendarStore();
+const props = defineProps(['theme']);
+const weeks = computed(() => getWeeksOfYear(store.viewYear));
+const selectedWeekIdx = computed(() => store.viewWeekIdx);
+const selectedWeek = computed(() => 
+  weeks.value[selectedWeekIdx.value] || null
+)
 
 const weekDays = computed(() => {
   if (!selectedWeek.value || !selectedWeek.value.start || isNaN(selectedWeek.value.start)) return []
@@ -34,7 +24,7 @@ const weekDays = computed(() => {
       dayName: format(date, 'E'),
       displayDate: format(date, 'd'),
       isToday: isToday(date),
-      todos: []
+      todos: store.getTodos(format(date, 'yyy-MM-dd'))
     }))
 })
 
@@ -50,20 +40,26 @@ const weekLabel = computed(() => {
 
 
 function prevWeek() {
-  if (props.selectedWeekIdx > 0) emit('update:selectedWeekIdx', props.selectedWeekIdx - 1)
+  let date = new Date(store.viewDate)
+  date.setDate(date.getDate() -7)
+  store.viewDate = date
 }
 function nextWeek() {
-  if (props.selectedWeekIdx < props.weekOptions.length - 1) emit('update:selectedWeekIdx', props.selectedWeekIdx + 1)
+    let date = new Date(store.viewDate)
+  date.setDate(date.getDate() +7)
+  store.viewDate = date
 }
+
 function selectWeek(evt) {
-  emit('update:selectedWeekIdx', Number(evt.target.value))
+  const idx = Number(evt.target.value)
+  const week =weeks.value[idx]
+  store.viewDate = week.start
 }
 
 function goToDay(date) {
   emit('updateCurrentDate', date)
   emit('update:view', 'day')
 }
-
 
 </script>
 
@@ -72,7 +68,7 @@ function goToDay(date) {
         <!-- Week/Month/Year, with nav (add prev/next week buttons as needed) -->
         <header :class="['week-header', theme]">
             <button @click="prevWeek">⬅️</button>
-            <select :value="props.selectedWeekIdx" @change="selectWeek">
+            <select :value="selectedWeekIdx" @change="selectWeek">
               <option v-for="(week, idx) in weekOptions" :key="idx" :value="idx">
                 {{ week.label }}
               </option>
@@ -89,7 +85,7 @@ function goToDay(date) {
             @click="goToDay(day.dateObj)"
             >
                 <div :class="['date-label', theme]">
-                    <span>{{ day.dayName }}</span>
+                    <span>{{ day.dayName }} - </span>
                     <span>{{ day.displayDate }}</span>
                 </div>
                 <!--Top Three TODOS-->

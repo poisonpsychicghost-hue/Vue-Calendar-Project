@@ -11,6 +11,7 @@ import {
   endOfWeek,
   eachDayOfInterval,
   isToday,
+  isSameYear,
   getYear,
   getMonth,
   getDate,
