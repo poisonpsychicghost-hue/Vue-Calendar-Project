@@ -4,11 +4,11 @@
         <!-- Month Year Nav Controls-->
         <header :class="['month-header', theme]">
             <button @click="prevMonth">⬅️</button>
-            <select :value="props.month" @change="updateMonth(Number($event.target.value))">
+            <select :value="store.viewMonth" @change="updateMonth(Number($event.target.value))">
   <option v-for="m in 12" :key="m-1" :value="m-1">{{ monthNameList[m-1] }}</option>
             </select>
-            <span>{{ monthName }} {{ props.year }}</span>
-            <select :value="props.year" @change="updateYear(Number($event.target.value))">
+            <span>{{ monthName }} {{ store.viewYear }}</span>
+            <select :value="store.viewYear" @change="updateYear(Number($event.target.value))">
                 <option v-for="y in yearOptions" :key="y" :value="y">{{ y }}</option>
             </select>
             <button @click="nextMonth">➡️</button>
@@ -20,7 +20,7 @@
                 <div
                     v-for="day in monthDays"
                     :key="day.dateStr"
-                    :class="['day-cell', theme, {today: day.isToday, 'other-month': day.monthNum !== month.value }]"
+                    :class="['day-cell', theme, {today: day.isToday, 'other-month': day.monthNum !== store.viewMonth }]"
                     @click="goToDay(day.dateObj)"
                     >
                     {{ day.dayNum }}
@@ -33,40 +33,43 @@
 import { ref, computed } from 'vue'
 import { getMonthDays } from '../api/dateController'
 import { addMonths, subMonths } from 'date-fns'
+import { useCalendarStore } from '../stores/calendarStore'
 
-
-const props = defineProps(['theme', 'month', 'year']);
+const store = useCalendarStore()
+const props = defineProps(['theme']);
 const emit = defineEmits(['update:month', 'update:year', 'updateCurrentDate', 'update:view']);
-const year = ref(new Date().getFullYear());
-const month = ref(new Date().getMonth()); //Jan = 0 - Dec = 11
 const weekdays = ['Sunday', 'Monday', 'Teusday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-const monthDays = computed(() => getMonthDays(props.year, props.month));
+const monthDays = computed(() => getMonthDays(store.viewYear, store.viewMonth));
 const monthNameList = [
     'January', 'February', 'March', 'April',
     'May', 'June', 'July', 'August', 
     'September', 'October', 'November', 'December'
 ]
-const monthName = computed(() => monthNameList[props.month])
+const monthName = computed(() => monthNameList[store.viewMonth])
 const yearOptions = Array.from({ length: 31}, (_, i) => 2020 + i)
 
 function prevMonth() {
-  const date = subMonths(new Date(props.year, props.month, 1), 1)
-  props.year = date.getFullYear()
-  props.month = date.getMonth()
+    let date = new Date(store.viewDate)
+    date.setMonth(date.getMonth() - 1)
+    store.viewDate = date
 }
 
 function nextMonth() {
-  const date = addMonths(new Date(props.year, props.month, 1), 1)
-  props.year = date.getFullYear()
-  props.month = date.getMonth()
+    let date = new Date(store.viewDate)
+    date.setMonth(date.getMonth() + 1)
+    store.viewDate = date
 }
 
 function updateMonth(newMonth) {
-    emit('update:month', newMonth)
+    let date = new Date(store.viewDate)
+    date.setMonth(newMonth)
+    store.viewDate = date
 }
 
 function updateYear(newYear) {
-    emit('update:year', newYear)
+    let date = new Date(store.viewDate)
+    date.setFullYear(newYear)
+    store.viewDate = date
 }
 
 
