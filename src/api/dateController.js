@@ -28,4 +28,22 @@ export function getMonthDays(year, month, weekStartsOn = 0) {
     monthNum: getMonth(date),
     yearNum: getYear(date),
   }))
-}
+};
+
+export function getWeeksOfYear(year, weekStartsOn = 0) {
+  const weeks = [];
+  let start = startOfWeek(new Date(year, 0, 1), { weekStartsOn });
+  let weekNum = 1;
+  while (isSameYear(start, new Date(year, 6, 1)) || weekNum === 1) {
+    const end = endOfWeek(start, { weekStartsOn });
+    weeks.push({
+      start,
+      end,
+      label: `Week ${weekNum}: ${format(start, 'MMM d')} - ${format(end, 'MMM d')}`
+    });
+    start = addWeeks(start, 1);
+    weekNum++;
+    if (start.getFullYear() > year && weekNum > 2) break;
+  }
+  return weeks;
+};
