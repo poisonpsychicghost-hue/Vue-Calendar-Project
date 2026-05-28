@@ -5,9 +5,8 @@ import { useCalendarStore } from '../stores/calendarStore';
 
 const props = defineProps(['theme', 'currentDate'])
 const store = useCalendarStore();
-
-const current = ref(props.currentDate);
-const dateStr = computed(() => props.currentDate.value ? props.currentDate.value.toISOString().split('T')[0] : '');
+const emit = defineEmits(['updateCurrentDate']);
+const dateStr = computed(() => props.currentDate ? props.currentDate.toISOString().split('T')[0] : '');
 const newTodoTitle = ref('');
 const newTodoDetails = ref('');
 const todos = computed(() => store.getTodos(dateStr.value));
@@ -49,11 +48,11 @@ function handleDrop(idx) {
 }
 
 function prevDay() {
-    props.currentDate.value = subDays(current.value, 1);
+    emit('updateCurrentDate'), subDays(props.currentDate, 1);
 }
 
 function nextDay() {
-    props.currentDate.value = addDays(current.value, 1);
+    emit('updateCurrentDate'), addDays(props.currentDate, 1);
 }
 
 </script>
@@ -67,7 +66,7 @@ function nextDay() {
                 <p>Day Select</p>
                 <button @click="nextDay">➡️</button>
             </header>
-            <div :class="['day-name', theme]"><span>{{ current.value }}</span><span>{{ current }}</span></div>
+            <div :class="['day-name', theme]"><span>{{ 'Test' }}</span></div>
             <div :class="['weather-banner', theme]"><span>Today Has Weather</span><span>{{ weatherIcon }}</span></div>
             <div class="lower-block">
                 <div :class="['day-todoCard', theme]"> <!-- Make Expand/Scroll by User for More ToDo View-->

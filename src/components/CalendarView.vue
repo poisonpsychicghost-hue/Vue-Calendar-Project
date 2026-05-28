@@ -50,7 +50,7 @@ function showDay() { currentView.value = 'day'}
 
 function goToDay(date) {
   currentDate.value = new Date(date)
-  currentView.value = 'day'
+  currentView.value = 'date'
 }
 
 function getWeeksOfYear(year) {
@@ -87,7 +87,7 @@ function getWeeksOfYear(year) {
             :theme="theme"
             :key="currentView"
             v-bind="monthYearProps"
-            :current-date="currentDate"
+            :current-date="currentDate.value"
             :onUpdateCurrentDate="date => currentDate.value = new Date(date)"
             @updateCurrentDate="goToDay"
             @update:view="showDay"
