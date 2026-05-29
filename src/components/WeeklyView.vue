@@ -6,12 +6,17 @@ import { getWeeksOfYear } from '../api/dateController'
 
 const store = useCalendarStore();
 const props = defineProps(['theme']);
+const emit = defineEmits(['update:view']);
 const weeks = computed(() => getWeeksOfYear(store.viewYear));
 const selectedWeekIdx = computed(() => store.viewWeekIdx);
 const selectedWeek = computed(() => 
   weeks.value[selectedWeekIdx.value] || null
 )
-
+const monthNameList = [
+    'January', 'February', 'March', 'April',
+    'May', 'June', 'July', 'August', 
+    'September', 'October', 'November', 'December'
+]
 const weekDays = computed(() => {
   if (!selectedWeek.value || !selectedWeek.value.start || isNaN(selectedWeek.value.start)) return []
   const start = selectedWeek.value.start
@@ -45,7 +50,7 @@ function prevWeek() {
   store.viewDate = date
 }
 function nextWeek() {
-    let date = new Date(store.viewDate)
+  let date = new Date(store.viewDate)
   date.setDate(date.getDate() +7)
   store.viewDate = date
 }
@@ -57,7 +62,7 @@ function selectWeek(evt) {
 }
 
 function goToDay(date) {
-  emit('updateCurrentDate', date)
+  store.veiwDay = new Date(date)
   emit('update:view', 'day')
 }
 
@@ -76,8 +81,8 @@ function goToDay(date) {
             <button @click="nextWeek">➡️</button>
             <!--Add in DropDown Menu with Week Select Choices By Year/Mo-->
         </header>
+        <div><h2> {{ monthNameList[store.viewMonth] }} </h2></div>
         <div class="week-grid">
-
             <div 
             v-for="day in weekDays" 
             :key="day.dateStr" 

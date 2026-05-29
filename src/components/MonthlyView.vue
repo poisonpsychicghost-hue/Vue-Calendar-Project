@@ -37,7 +37,7 @@ import { useCalendarStore } from '../stores/calendarStore'
 
 const store = useCalendarStore()
 const props = defineProps(['theme']);
-const emit = defineEmits(['update:month', 'update:year', 'updateCurrentDate', 'update:view']);
+const emit = defineEmits(['update:view']);
 const weekdays = ['Sunday', 'Monday', 'Teusday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 const monthDays = computed(() => getMonthDays(store.viewYear, store.viewMonth));
 const monthNameList = [
@@ -74,8 +74,8 @@ function updateYear(newYear) {
 
 
 function goToDay(date) {
-  emit('updateCurrentDate', date)
-  emit('update:view', 'day')
+    store.viewDate = new Date(date)
+    emit('update:view', 'day')
 }
 
 </script>
