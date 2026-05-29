@@ -20,7 +20,14 @@
                 <div
                     v-for="day in monthDays"
                     :key="day.dateStr"
-                    :class="['day-cell', theme, {today: day.isToday, 'other-month': day.monthNum !== store.viewMonth }]"
+                    :class="[
+                        'day-cell',
+                        theme,
+                        { today: day.isToday, 'other-month': day.monthNum !== store.viewMonth },
+                        { 'todo-low': store.getTodos(day.dateStr).length === 1 },
+                        { 'todo-medium': store.getTodos(day.dateStr).length > 1 && store.getTodos(day.dateStr).length < 5 },
+                        { 'todo-high': store.getTodos(day.dateStr).length >= 5 }
+                        ]"
                     @click="goToDay(day.dateObj)"
                     >
                     {{ day.dayNum }}
@@ -141,8 +148,8 @@ function goToDay(date) {
 .day-cell.dark.today {
     background: #548a7a;
     min-height: 56px;
-    border-radius: 0.5rem;
-    border: 2px solid #dfc241;
+    border-radius: 0.25rem;
+    border: 2px solid #aa7224;
     text-align: right;
     padding: 0.5rem;
     color: #6640b2;
@@ -152,13 +159,25 @@ function goToDay(date) {
 .day-cell.light.today {
     background: #548a7a;
     min-height: 56px;
-    border-radius: 0.5rem;
-    border: 2px solid #dfc241;
+    border-radius: 0.25rem;
+    border: 2px solid #aa7224;
     text-align: right;
     padding: 0.5rem;
     color: #3f0c6c;
     font-size: 1rem;
     font-style: bolder;
+}
+.todo-low {
+    border-radius: 0.5rem;
+    border: 2px solid #27d217;
+}
+.todo-medium {
+    border-radius: 0.5rem;
+    border: 2px solid #dfc241;
+}
+.todo-high {
+    border-radius: 0.5rem;
+    border: 2px solid #db2a2a;
 }
 .year-select {
   margin-left: 1rem;
