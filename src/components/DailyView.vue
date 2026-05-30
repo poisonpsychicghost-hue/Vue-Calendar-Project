@@ -71,7 +71,7 @@ function nextDay() {
                 <button @click="nextDay">➡️</button>
             </header>
             <div :class="['day-name', theme]"><span>{{ dateStr }}</span></div>
-            <div :class="['weather-banner', theme]"><WeatherBanner :date-str="store.viewDate.toISOString().split('T')[0]" /></div>
+            <WeatherBanner :class="['weather-banner', theme]" :date-str="store.viewDate.toISOString().split('T')[0]" mode="daily" />
             <div class="lower-block">
                 <div :class="['day-todoCard', theme]"> <!-- Make Expand/Scroll by User for More ToDo View-->
                     <p>TODOs:</p>
@@ -168,8 +168,9 @@ function nextDay() {
     color: #aa9deb;
 }
 .weather-banner.dark {
-    display: flex;
-    justify-content: space-evenly;
+    display: table;
+    justify-content: center;
+    min-width: min-content;
     max-height: .5rem;
     margin: 1rem;
     padding: 3%;
@@ -271,4 +272,5 @@ function nextDay() {
     background: #6658b4;;
     color: #351bb6;
 }
+
 </style>

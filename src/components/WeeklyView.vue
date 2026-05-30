@@ -3,6 +3,7 @@ import { ref, computed, watch } from 'vue'
 import { format, eachDayOfInterval, isToday} from 'date-fns';
 import { useCalendarStore } from '../stores/calendarStore'
 import { getWeeksOfYear } from '../api/dateController'
+import WeatherBanner from './WeatherBanner.vue'
 
 const store = useCalendarStore();
 const props = defineProps(['theme']);
@@ -99,7 +100,7 @@ function goToDay(date) {
                       {{ todo.title }}</li>
                 </ul>
                 <!-- Weather Banner/Icons -->
-                 <div class="weather-banner">⛅️</div>
+                 <div class="weather-banner"><WeatherBanner :date-str="day.dateStr" mode="weekly" /></div>
             </div>
         </div>
     </div>

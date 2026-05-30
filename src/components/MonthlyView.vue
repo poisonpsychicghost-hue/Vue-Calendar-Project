@@ -31,6 +31,7 @@
                     @click="goToDay(day.dateObj)"
                     >
                     {{ day.dayNum }}
+                    <WeatherBanner :date-str="day.dateStr" mode="monthly" />
                 </div>
         </div>
     </div>
@@ -41,6 +42,7 @@ import { ref, computed } from 'vue'
 import { getMonthDays } from '../api/dateController'
 import { addMonths, subMonths } from 'date-fns'
 import { useCalendarStore } from '../stores/calendarStore'
+import WeatherBanner from './WeatherBanner.vue'
 
 const store = useCalendarStore()
 const props = defineProps(['theme']);

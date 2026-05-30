@@ -4,7 +4,8 @@ import { getWeather } from '../api/weather'
 
 const props = defineProps({
   dateStr: String, // expects 'YYYY-MM-DD'
-  location: { type: String, default: 'Atlanta,GA' }
+  location: { type: String, default: 'Atlanta,GA' },
+  mode: { type: String, default: 'monthly'}
 })
 
 const weather = ref(null)
@@ -20,8 +21,20 @@ watch(() => props.dateStr, fetchWeather)
 </script>
 
 <template>
-  <div class="weather-banner">
-    <span v-if="weather">{{ weather.condition }} <img :src="weather.icon" alt="weather" v-if="weather.icon" /></span>
-    <span v-else>Loading weather…</span>
+  <div v-if="weather && mode === 'monthly'">
+    <span>Avg: {{ Math.round(weather.temp) }}°F</span>
+    <img :src="weather.icon" alt="" v-if="weather.icon" />
   </div>
+  <div v-else-if="weather && mode === 'weekly'">
+    <span>Avg: {{ Math.round(weather.temp) }}°F</span>
+    <span>{{ weather.condition }}</span>
+    <img :src="weather.icon" alt="" v-if="weather.icon" />
+  </div>
+  <div v-else-if="weather && mode === 'daily'">
+    <span v-if="!isNaN(weather.temp_min)">Low: {{ Math.round(weather.temp_min) }}°F</span>
+    <span v-if="!isNaN(weather.temp_max)">High: {{ Math.round(weather.temp_max) }}°F</span>
+    <span>{{ weather.condition }}</span>
+    <img :src="weather.icon" alt="" v-if="weather.icon" />
+  </div>
+  <span v-else>Loading weather…</span>
 </template>

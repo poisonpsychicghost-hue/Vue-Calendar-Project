@@ -60,7 +60,14 @@ export async function getWeather(dateStr = '', location = 'Atlanta,GA') {
             condition: data.forecast?.forecastday[0]?.day?.condition?.text || '',
             icon: data.forecast?.forecastday[0]?.day?.condition?.icon || '',
             temp: data.forecast?.forecastday[0]?.day?.avgtemp_f || null,
+            temp_c: data.forecast?.forecastday[0]?.day?.avgtemp_c ?? null,
+            temp_min: data.forecast?.forecastday[0]?.day?.mintemp_f ?? null,
+            temp_max: data.forecast?.forecastday[0]?.day?.maxtemp_f ?? null,
+            
+            raw: data
+
         }
+        
         weatherCache[cacheKey] = result
         saveToLocalCache(cacheKey, result)
         return result
@@ -69,3 +76,4 @@ export async function getWeather(dateStr = '', location = 'Atlanta,GA') {
         return null
     }
 }
+
