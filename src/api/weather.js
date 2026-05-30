@@ -1,20 +1,22 @@
-const API_Key = import.meta.env.VITE_WEATHER_API_KEY
+import { differenceInCalendarDays, parseISO, isBefore } from "date-fns"
+
+const API_KEY = import.meta.env.VITE_WEATHER_API_KEY
 const BASE_URL = 'https://api.weatherapi.com/v1'
 
 const weatherCache = {}
 
-function saveToLocalCache(dateStr, data) {
+function saveToLocalCache(cacheKey, data) {
     try {
-        localStorage.setItem(`weather-${dateStr}`, JSON.stringify( {data, time: Date.now() }))
+        localStorage.setItem(`weather-${cacheKey}`, JSON.stringify({ data, time: Date.now() }))
     } catch {}
 }
 
-function loadFromLocalCache(dateStr, maxAgems = 24 * 60 * 60 * 1000) {
+function loadFromLocalCache(cacheKey, maxAgeMs = 24 * 60 * 60 * 1000) {
     try {
-        const raw = localStorage.getItem(`weather-${dateStr}`)
+        const raw = localStorage.getItem(`weather-${cacheKey}`)
         if (!raw) return null
         const { data, time } = JSON.parse(raw)
-        if (Date.now() - time > maxAgeMS) return null
+        if (Date.now() - time > maxAgeMs) return null
         return data
     } catch {
         return null
@@ -22,18 +24,37 @@ function loadFromLocalCache(dateStr, maxAgems = 24 * 60 * 60 * 1000) {
 }
 
 export async function getWeather(dateStr = '', location = 'Atlanta,GA') {
-    const cacheKey = `${location}:${dateStr}`
-    if (weatherCache[cacheKey]) return weatherCache[cacheKey]
+    const normalizedDateStr = typeof dateStr === 'string'
+      ? dateStr
+      : dateStr.toISOString().split('T')[0]
 
+    const requestDate = parseISO(normalizedDateStr)
+    const today = new Date()
+    const date2020 = new Date('2020-01-01')
+    const cacheKey = `${location}:${normalizedDateStr}`
+
+    if (weatherCache[cacheKey]) return weatherCache[cacheKey]
     const localData = loadFromLocalCache(cacheKey)
     if (localData) return localData
 
+    if (isBefore(requestDate, date2020)) {
+        return { condition: 'No Data (too old)', icon: '', temp: null }
+    }
+    const daysAhead = differenceInCalendarDays(requestDate, today)
+    if (daysAhead > 14) {
+        return { condition: 'Forecast unavailable (too far ahead)', icon: '', temp: null }
+    }
 
-    const url = `${BASE_URL}/history.json?key=${API_Key}&q=${location}&dt=${dateStr}`;
+    let url = ''
+    if (isBefore(requestDate, today)) {
+        url = `${BASE_URL}/history.json?key=${API_KEY}&q=${location}&dt=${normalizedDateStr}`
+    } else {
+        url = `${BASE_URL}/forecast.json?key=${API_KEY}&q=${location}&dt=${normalizedDateStr}`
+    }
 
     try {
         const response = await fetch(url)
-        if(!response.ok) throw new Error(`API error ${response.status}`)
+        if (!response.ok) throw new Error(`API error ${response.status}`)
         const data = await response.json()
         const result =  {
             condition: data.forecast?.forecastday[0]?.day?.condition?.text || '',

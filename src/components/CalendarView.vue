@@ -4,6 +4,7 @@ import { format, addWeeks, subWeeks, startOfWeek, endOfWeek, eachDayOfInterval, 
 import MonthlyView from './MonthlyView.vue';
 import WeeklyView from './WeeklyView.vue';
 import DailyView from './DailyView.vue';
+import { getWeather } from '../api/weather.js';
 
 const props = defineProps(['theme']);
 const currentView = ref('month'); // 'month', 'week', 'day'
@@ -93,6 +94,8 @@ function getWeeksOfYear(year) {
             @update:view="showDay"
             />
         </transition>
+
+        
         <!-- <MonthlyView :theme="theme" /> 
        <WeeklyView :theme="theme" /> -->
     </div>

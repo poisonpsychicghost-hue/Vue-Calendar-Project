@@ -2,6 +2,7 @@
 import { ref, computed} from 'vue';
 import { format, addDays, subDays } from 'date-fns';
 import { useCalendarStore } from '../stores/calendarStore';
+import WeatherBanner from './WeatherBanner.vue'
 
 const props = defineProps(['theme']);
 const store = useCalendarStore();
@@ -70,7 +71,7 @@ function nextDay() {
                 <button @click="nextDay">➡️</button>
             </header>
             <div :class="['day-name', theme]"><span>{{ dateStr }}</span></div>
-            <div :class="['weather-banner', theme]"><span>Today Has Weather</span><span>{{ weatherIcon }}</span></div>
+            <div :class="['weather-banner', theme]"><WeatherBanner :date-str="store.viewDate.toISOString().split('T')[0]" /></div>
             <div class="lower-block">
                 <div :class="['day-todoCard', theme]"> <!-- Make Expand/Scroll by User for More ToDo View-->
                     <p>TODOs:</p>
