@@ -31,8 +31,8 @@ watch(() => props.dateStr, fetchWeather)
     <img :src="weather.icon" alt="" v-if="weather.icon" />
   </div>
   <div v-else-if="weather && mode === 'daily'">
-    <span v-if="!isNaN(weather.temp_min)">Low: {{ Math.round(weather.temp_min) }}°F</span>
-    <span v-if="!isNaN(weather.temp_max)">High: {{ Math.round(weather.temp_max) }}°F</span>
+    <span v-if="!isNaN(weather.temp_current)">Current Temp: {{ Math.round(weather.temp_current) }}°F</span>
+    <span v-if="!isNaN(weather.temp_feels)">Feels Like: {{ Math.round(weather.temp_feels) }}°F</span>
     <span>{{ weather.condition }}</span>
     <img :src="weather.icon" alt="" v-if="weather.icon" />
   </div>

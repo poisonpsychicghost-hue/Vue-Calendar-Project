@@ -1,4 +1,4 @@
-import { differenceInCalendarDays, parseISO, isBefore } from "date-fns"
+import { differenceInCalendarDays, parseISO, isBefore, isSameDay } from "date-fns"
 
 const API_KEY = import.meta.env.VITE_WEATHER_API_KEY
 const BASE_URL = 'https://api.weatherapi.com/v1'
@@ -45,27 +45,59 @@ export async function getWeather(dateStr = '', location = 'Atlanta,GA') {
         return { condition: 'Forecast unavailable (too far ahead)', icon: '', temp: null }
     }
 
-    let url = ''
-    if (isBefore(requestDate, today)) {
+    let url = '', endpointType = '';
+    if (isSameDay(requestDate, today)) {
+        url = `${BASE_URL}/current.json?key=${API_KEY}&q=${location}`
+        endpointType = 'current'
+    } else if (isBefore(requestDate, today)) {
         url = `${BASE_URL}/history.json?key=${API_KEY}&q=${location}&dt=${normalizedDateStr}`
+        endpointType = 'history'
     } else {
         url = `${BASE_URL}/forecast.json?key=${API_KEY}&q=${location}&dt=${normalizedDateStr}`
+        endpointType = 'forecast'
     }
+    console.log(`URL is: ${url}`);
 
     try {
         const response = await fetch(url)
         if (!response.ok) throw new Error(`API error ${response.status}`)
         const data = await response.json()
-        const result =  {
-            condition: data.forecast?.forecastday[0]?.day?.condition?.text || '',
-            icon: data.forecast?.forecastday[0]?.day?.condition?.icon || '',
-            temp: data.forecast?.forecastday[0]?.day?.avgtemp_f || null,
-            temp_c: data.forecast?.forecastday[0]?.day?.avgtemp_c ?? null,
-            temp_min: data.forecast?.forecastday[0]?.day?.mintemp_f ?? null,
-            temp_max: data.forecast?.forecastday[0]?.day?.maxtemp_f ?? null,
-            
-            raw: data
 
+        let result = { date: normalizedDateStr }
+
+        if (endpointType === 'current') {
+            const c = data.current || {}
+            result = {
+                ...result,
+                last_updated: c.last_updated || '',
+                temp_c: c.temp_c ?? null,
+                temp_f: c.temp_f ?? null,
+                feelslike_c: c.feelslike_c ?? null,
+                feelslike_f: c.feelslike_f ?? null,
+                humidity: c.humidity ?? null,
+                precip_mm: c.precip_mm ?? null,
+                text: c.condition.text || '',
+                icon: c.condition.icon || '',
+            }
+        } else {
+            const dayBlock = data.forecast?.forecastday?.[0] || {}
+            const d = dayBlock.day || {}
+            result = {
+                ...result,
+                avgtemp_c: d.avgtemp_c ?? null,
+                avgtemp_f: d.avgtemp_f ?? null, 
+                feelslike_c: d.feelslike_c ?? null,
+                feelslike_f: d.feelslike_f ?? null, 
+                humidity: d.avghumidity ?? null,
+                temp_min_c: d.mintemp_c ?? null,
+                temp_max_c: d.maxtemp_c ?? null,
+                temp_min_f: d.mintemp_f ?? null,
+                temp_max_f: d.maxtemp_f ?? null,
+                totalprecip_mm: d.totalprecip_mm ?? null,
+                daily_chance_of_rain: d.daily_chance_of_rain ?? null,
+                text: d.condition.text || '',
+                icon: d.condition.icon || '',
+            }
         }
         
         weatherCache[cacheKey] = result
