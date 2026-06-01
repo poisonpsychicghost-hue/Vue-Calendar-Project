@@ -10,8 +10,20 @@ const prefs = ref({
     displayNmae: '',
     preferredLocations: [''],
     theme: 'dark',
-    unit: 'f'
-    //add fields as preferences build
+    unit: 'f',
+    birthday: '', //YYYY-MM-DD
+        userEmail: '', //xxx@yy.zzz
+        recurringTasks: [{
+            monthly: [
+                {//idx is 0-30 (each day of Mo.)
+                 //{ recurName: '', recurIdx: 0, title: '', details: ''}   
+
+                }],
+            weekly: [{
+                //idx is 0-6 (Sun-Sat)
+                 //{ recurName: '', recurIdx: 0, title: '', details: ''}   
+            }]
+        }] 
 })
 
 function addLocations() {
@@ -23,8 +35,15 @@ function clearPrefs() {
         displayName: '',
         perferredLocations: [''],
         theme: 'dark',
-        unit: 'f'
-        //add fields to reset as preferences build
+        unit: 'f',
+        birthday: '', 
+        userEmail: '', 
+        recurringTasks: [{
+            monthly: [
+                {}],
+            weekly: [
+                {}]
+        }] 
     }
 }
 
