@@ -2,6 +2,10 @@
 import { isToday as isTodayfn, parseISO } from 'date-fns'
 import { computed, onMounted, ref, watch } from 'vue'
 import { getWeather } from '../api/weather'
+import { useCalendarStore } from '../stores/calendarStore.js'
+
+
+const store = useCalendarStore()
 
 const props = defineProps({
   dateStr: String, // expects 'YYYY-MM-DD'
@@ -24,10 +28,10 @@ watch(() => props.dateStr, fetchWeather)
 
 <template>
   <div v-if="weather && mode === 'monthly'">
-    <span v-if="!isNaN(weather.avgtemp_f)">Avg: {{ Math.round(weather.avgtemp_f) }}°F</span>
+    <span v-if="!isNaN(weather.avgtemp_f)">Avg: {{ store.unit === 'f' ? Math.round(weather.avgtemp_f) + '°F' : Math.round(weather.avgtemp_c) + '°C' }}</span>
     
     <span v-else-if="isToday && weather.feelslike !== null">
-      Current Feel: {{ weather.feelslike_f }}°F
+      Currently: {{ store.unit === 'f' ? Math.round(weather.temp_f) + '°F' : Math.round(weather.temp_c) + '°C' }}
     </span>
     <img :src="weather.icon" alt="" v-if="weather.icon" />
   </div>
@@ -36,11 +40,11 @@ watch(() => props.dateStr, fetchWeather)
     <img :src="weather.icon" alt="" v-if="weather.icon" />
 
     <span v-if="isToday && weather.temp_f !== null">
-      Current: {{ Math.round(weather.temp_f) }}°F
+      Current: {{ store.unit === 'f' ? Math.round(weather.temp_f) + '°F' : Math.round(weather.temp_c) + '°C' }}
     </span>
 
     <span v-else-if="!isNaN(weather.temp_min_f) && !isNaN(weather.temp_max_f)">
-      Temp: {{ Math.round(weather.temp_min_f) }} - {{ Math.round(weather.temp_max_f) }}°F
+      Temp: {{ store.unit === 'f' ? Math.round(weather.temp_min_f) + '°F' : Math.round(weather.temp_min_c) + '°C' }} - {{ store.unit === 'f' ? Math.round(weather.temp_max_f) + '°F' : Math.round(weather.temp_max_c) + '°C' }}
     </span>
 
     <span v-if="isToday && weather.humidity !== null">
@@ -63,9 +67,9 @@ watch(() => props.dateStr, fetchWeather)
   <div v-else-if="weather && mode === 'daily'">
     <span v-if="weather.condition">{{ weather.condition }}</span>
     <img :src="weather.icon" alt="" v-if="weather.icon" />
-    <span v-if="!isNaN(weather.temp_f)">Current Temp: {{ Math.round(weather.temp_f) }}°F</span>
+    <span v-if="!isNaN(weather.temp_f)">Current Temp: {{ store.unit === 'f' ? Math.round(weather.temp_f) + '°F' : Math.round(weather.temp_c) + '°C' }}</span>
     <span v-else-if="weather.temp_f !== null">
-      Avg Temp: {{ weather.avgtemp_f }}°F
+      Avg Temp: {{ store.unit === 'f' ? Math.round(weather.avgtemp_f) + '°F' : Math.round(weather.avgtemp_c) + '°C' }}
     </span>
     
     <span v-if=" isToday && !isNaN(weather.feelslike_f)">
@@ -73,7 +77,7 @@ watch(() => props.dateStr, fetchWeather)
 
     </span>
     <span v-else-if="weather.temp_min_f !== null && weather.temp_max_f !== null">
-      Min-Max (°F): {{ weather.temp_min_f }} - {{ weather.temp_max_f }}°F
+      Min-Max: {{ store.unit === 'f' ? Math.round(weather.temp_min_f) + '°F' : Math.round(weather.temp_min_c) + '°C' }} - {{ store.unit === 'f' ? Math.round(weather.temp_max_f) + '°F' : Math.round(weather.temp_max_c) + '°C' }}
     </span>
     <span v-if="isToday && !isNaN(weather.humidity)">Humidity: {{ Math.round(weather.humidity) }}%</span>
     <span v-if="isToday && !isNaN(weather.precip_mm)">Rain (in mm): {{ Math.round(weather.precip_mm) }}mm</span>
