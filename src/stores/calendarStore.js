@@ -9,7 +9,11 @@ export const useCalendarStore = defineStore('calendar', {
         todosByDate: {}, // { '2026-05-27': [{title, details}]}
         notesByDate: {}, // { '2026-05-27': "My Daily Notes..."}
         user: null,
-        session: null
+        session: null,
+        unit: 'f',
+        theme: 'dark',
+        preferredLocations: ['Atlanta'],
+        activeLoactionIdx: 0
         }), 
     getters: {
         viewYear: (state) => state.viewDate.getFullYear(),
@@ -50,6 +54,21 @@ export const useCalendarStore = defineStore('calendar', {
         },
         setNote(dateStr, note) {
             this.notesByDate[dateStr] = note
-        }
+        },
+        toggleUnit() {
+            this.unit = this.unit === 'f' ? 'c' : 'f'
+        },
+        cycleTheme() {
+            const themes = ['dark', 'light'] //add 'ocean' and 'forest' in Polish
+            const idx = themes.indexOf(this.theme)
+            this.theme = theme[(idx + 1) % themes.length]
+        },
+        setTheme(newTheme) {
+            this.theme = newTheme
+        }, 
+        nextLocation() {
+            this.activeLoactionIdx = (this.activeLoactionIdx + 1) % this.preferredLocations.length
+        },
+        setActiveLocation(idx) { this.activeLocationIdx = idx}
     }
 })

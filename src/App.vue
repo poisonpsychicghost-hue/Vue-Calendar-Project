@@ -46,7 +46,6 @@ function openPref() {
             </div>  
             <div v-if="isLoggedIn && !prefOpen">
                 <h1>{{ userName }}'s Calendar</h1>
-                <!--Fill Out with Components with Transitions During Build-->
                 <CalendarView :theme="theme" />
             </div>
         </main>
