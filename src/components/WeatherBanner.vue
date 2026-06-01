@@ -17,7 +17,7 @@ const weather = ref(null)
 const isToday = computed(() => isTodayfn(parseISO(props.dateStr)))
 
 async function fetchWeather() {
-  weather.value = await getWeather(props.dateStr, props.location)
+  weather.value = await getWeather(props.dateStr, store.preferredLocations[store.activeLocationIdx])
 }
 
 // Fetch when created and when date changes

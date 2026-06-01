@@ -48,7 +48,7 @@ function openPref() {
         <UserPrefs :theme="store.theme"/>
       </div>
       <div v-if="isLoggedIn && !prefOpen">
-        <h1>{{ store.userName }}'s Calendar</h1>
+        <h1>{{ store.userName || 'User' }}'s Calendar</h1>
         <CalendarView 
           :theme="store.theme"
           :temp-unit="store.unit"

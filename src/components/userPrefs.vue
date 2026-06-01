@@ -71,7 +71,7 @@ function deleteAccount() {
     <form @submit.prevent>
       <label>
         Display Name:
-        <input v-model="store.displayName" placeholder="Display name" />
+        <input v-model="store.userName" placeholder="Display name" />
       </label>
       <label>
         Preferred Locations:

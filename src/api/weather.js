@@ -2,7 +2,7 @@ import { differenceInCalendarDays, parseISO, isBefore, isSameDay } from "date-fn
 import { useCalendarStore } from '../stores/calendarStore'
 
 
-const store = useCalendarStore()
+
 const API_KEY = import.meta.env.VITE_WEATHER_API_KEY
 const BASE_URL = 'https://api.weatherapi.com/v1'
 
@@ -26,7 +26,7 @@ function loadFromLocalCache(cacheKey, maxAgeMs = 24 * 60 * 60 * 1000) {
     }
 }
 
-export async function getWeather(dateStr = '', location = store.preferredLocations[store.activeLocationIdx]) {
+export async function getWeather(dateStr = '', location = 'Atlanta, GA') {
     const normalizedDateStr = typeof dateStr === 'string'
       ? dateStr
       : dateStr.toISOString().split('T')[0]
