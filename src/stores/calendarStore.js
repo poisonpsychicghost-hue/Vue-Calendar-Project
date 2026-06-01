@@ -10,11 +10,20 @@ export const useCalendarStore = defineStore('calendar', {
         notesByDate: {}, // { '2026-05-27': "My Daily Notes..."}
         user: null,
         session: null,
-        username: '',
+
+
+        userName: '',
+        userEmail: '',
+        birthday: '',
         unit: 'f',
         theme: 'dark',
         preferredLocations: ['Atlanta'],
-        activeLoactionIdx: 0
+        activeLoactionIdx: 0,
+
+        recurringTasks: {
+            monthly: [],
+            weekly: []
+        }
         }), 
     getters: {
         viewYear: (state) => state.viewDate.getFullYear(),
@@ -23,6 +32,11 @@ export const useCalendarStore = defineStore('calendar', {
         getTodos: (state) => (dateStr) => state.todosByDate[dateStr] || [],
         getNote: (state) => (dateStr) => state.notesByDate[dateStr] || '',
         viewDateString: (state) => state.viewDate.toISOString().split('T')[0],
+        validLocations: (state) =>
+            state.preferredLocations.filter(loc => loc && loc.trim() !== ''),
+        currentLocation: (state) =>
+            state.preferredLocations[state.activeLoactionIdx] || '',
+        
         viewWeekIdx: (state) => { const weeks = getWeeksOfYear(state.viewDate.getFullYear())
             return weeks.findIndex(w =>
                 state.viewDate >= w.start && state.viewDate <= w.end
@@ -71,6 +85,44 @@ export const useCalendarStore = defineStore('calendar', {
             if (!this.preferredLocations.length) return
             this.activeLocationIdx = (this.activeLoactionIdx + 1) % this.preferredLocations.length
         },
-        setActiveLocation(idx) { this.activeLocationIdx = idx}
+        setActiveLocation(idx) {
+            const valid = this.validLocations
+            if (idx < valid.length) this.activeLoactionIdx = idx
+            else this.activeLocationIdx = 0
+        },
+        addLocation() {
+            if (this.preferredLocations.every(loc => loc.trim() !== '')) {
+                this.preferredLocations.push('')
+            }
+        },
+        removeLocation(idx) {
+            this.preferredLocations.splice(idx, 1)
+            if (this.activeLocationIdx >= this.preferredLocations.length) {
+                this.activeLoactionIdx = 0
+            }
+        },
+        addRecurringTask(task) {
+            if (task.type === 'monthly') {
+                this.recurringTasks.monthly.push(task)
+            } else {
+                this.recurringTasks.weekly.push(task)
+            }
+        },
+        removeMonthlyTask(idx) {
+            this.recurringTasks.monthly.splice(idx, 1)
+        },
+        removeWeeklyTask(idx) {
+            this.recurringTasks.weekly.splice(idx, 1)
+        },
+        clearPrefs() {
+            this.userName = ''
+            this.userEmail = ''
+            this.birthday = ''
+            this.theme = ''
+            this.unit = 'f'
+            this.preferredLocations = ['Atlanta']
+            this.activeLoactionIdx = 0
+            this.recurringTasks = {montly: [], weekly: []}
+        }
     }
 })
