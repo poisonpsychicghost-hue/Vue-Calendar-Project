@@ -1,61 +1,69 @@
 <script setup>
 import { ref } from 'vue'
 import CalendarView from './components/CalendarView.vue'
-import GoogleLogin from './components/GoogleLogin.vue';
-import UserPrefs from './components/userPrefs.vue';
+import GoogleLogin from './components/GoogleLogin.vue'
+import UserPrefs from './components/userPrefs.vue'
+import { useCalendarStore } from './stores/calendarStore.js'
 
+const store = useCalendarStore()
 
-const userName = 'Sirius'; //Import Name from Google Auth.
-const theme = ref('dark');
-function toggleTheme() {
-    theme.value = theme.value === 'dark' ? 'light' : 'dark'
-
-};
-
-const isLoggedIn = ref(false);
+const isLoggedIn = ref(false)
 function handleAuth() {
-    isLoggedIn.value = !isLoggedIn.value //PlaceHolder for Google Auth Hook
-};
+  isLoggedIn.value = !isLoggedIn.value // PlaceHolder for Google Auth Hook
+}
 
 const prefOpen = ref(false)
 function openPref() {
-    prefOpen.value = !prefOpen.value
+  prefOpen.value = !prefOpen.value
 }
-
 </script>
 
 <template>
-    <div :class="['app-bg', theme]">
-        <header class="top-bar">
-            <button @click="openPref">
-                Preferences ⚙
-            </button>
-            <button @click="toggleTheme">
-                {{ theme === 'dark' ? '🌙' : '🌻' }}
-            </button>
-            <button @click="handleAuth">
-                {{ isLoggedIn ? 'Logout 🐶' : 'Login 🫖' }}
-            </button>
-        </header>
-        <main class="main-window">
-            <div v-if="!isLoggedIn">
-                <GoogleLogin :theme="theme"/>
-            </div>
-            <div v-if="isLoggedIn && prefOpen">
-                <UserPrefs :theme="theme"/>
-            </div>  
-            <div v-if="isLoggedIn && !prefOpen">
-                <h1>{{ userName }}'s Calendar</h1>
-                <CalendarView :theme="theme" />
-            </div>
-        </main>
-        <footer>
-            <p></p>
-            <p>🐶🐶🐶Site Built By Sirius|2026🐶🐶🐶</p>
-            <p></p>
-        </footer>
-    </div>
+  <div :class="['app-bg', store.theme]">
+    <header class="top-bar">
+      <div class="top-user-toggles">
+        <button @click="store.cycleTheme">
+          <span v-if="store.theme === 'dark'">🌙</span>
+          <span v-else-if="store.theme === 'light'">🌻</span>
+          <span v-else-if="store.theme === 'ocean'">🌊</span>
+          <span v-else="store.theme === 'forest'">🌳</span>
+        </button>
+        <button @click="store.toggleUnit">🌡️°{{ store.unit.toUpperCase() }}</button>
+        <button @click="store.nextLocation">
+          {{ store.preferredLocations[store.activeLocationIdx] }}
+        </button>
+      </div>
+      <div class="top-system-tabs">
+        <button @click="openPref">Preferences ⚙</button>
+        <button @click="handleAuth">
+          {{ isLoggedIn ? 'Logout 🐶' : 'Login 🫖' }}
+        </button>
+      </div>
+    </header>
+    <main class="main-window">
+      <div v-if="!isLoggedIn">
+        <GoogleLogin :theme="store.theme"/>
+      </div>
+      <div v-if="isLoggedIn && prefOpen">
+        <UserPrefs :theme="store.theme"/>
+      </div>
+      <div v-if="isLoggedIn && !prefOpen">
+        <h1>{{ store.userName }}'s Calendar</h1>
+        <CalendarView 
+          :theme="store.theme"
+          :temp-unit="store.unit"
+          :location="store.preferredLocations[store.activeLocationIdx]"
+        />
+      </div>
+    </main>
+    <footer>
+      <p></p>
+      <p>🐶🐶🐶Site Built By Sirius|2026🐶🐶🐶</p>
+      <p></p>
+    </footer>
+  </div>
 </template>
+
 
 <style scoped>
 .app-bg.dark {

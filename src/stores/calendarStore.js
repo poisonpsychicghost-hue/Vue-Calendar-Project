@@ -10,6 +10,7 @@ export const useCalendarStore = defineStore('calendar', {
         notesByDate: {}, // { '2026-05-27': "My Daily Notes..."}
         user: null,
         session: null,
+        username: '',
         unit: 'f',
         theme: 'dark',
         preferredLocations: ['Atlanta'],
@@ -59,15 +60,16 @@ export const useCalendarStore = defineStore('calendar', {
             this.unit = this.unit === 'f' ? 'c' : 'f'
         },
         cycleTheme() {
-            const themes = ['dark', 'light'] //add 'ocean' and 'forest' in Polish
+            const themes = ['dark', 'light', 'ocean', 'forest']
             const idx = themes.indexOf(this.theme)
-            this.theme = theme[(idx + 1) % themes.length]
+            this.theme = themes[(idx + 1) % themes.length]
         },
         setTheme(newTheme) {
             this.theme = newTheme
         }, 
         nextLocation() {
-            this.activeLoactionIdx = (this.activeLoactionIdx + 1) % this.preferredLocations.length
+            if (!this.preferredLocations.length) return
+            this.activeLocationIdx = (this.activeLoactionIdx + 1) % this.preferredLocations.length
         },
         setActiveLocation(idx) { this.activeLocationIdx = idx}
     }

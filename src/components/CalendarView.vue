@@ -6,7 +6,7 @@ import WeeklyView from './WeeklyView.vue';
 import DailyView from './DailyView.vue';
 import { getWeather } from '../api/weather.js';
 
-const props = defineProps(['theme']);
+const props = defineProps(['theme', 'temp-unit', 'location']);
 const currentView = ref('month'); // 'month', 'week', 'day'
 const year = ref(new Date().getFullYear());
 const month = ref(new Date().getMonth());

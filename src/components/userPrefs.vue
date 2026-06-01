@@ -6,20 +6,27 @@
       <label>
         Display Name:
         <input v-model="prefs.displayName" placeholder="Display name" />
+        <button @click="updateName">Update Name</button>
       </label>
 
       <label>
         Preferred Locations:
-        <div v-for="(loc, idx) in prefs.preferredLocations" :key="idx">
-          <input v-model="prefs.preferredLocations[idx]" placeholder="Location" />
-          <button type="button" @click="prefs.preferredLocations.splice(idx, 1)" v-if="prefs.preferredLocations.length > 1">Remove</button>
+        <div v-for="(loc, idx) in store.preferredLocations" :key="idx" style="margin-bottom: 0.5em;">
+          <input v-model="store.preferredLocations[idx]" placeholder="Location" />
+          <button type="button" @click="store.setActiveLocation(idx)">
+            Set Active
+          </button>
+          <span v-if="store.activeLocationIdx === idx">&nbsp;(Current)</span>
+          <button type="button" @click="store.preferredLocations.splice(idx, 1)" v-if="store.preferredLocations.length > 1">
+            Remove
+          </button>
         </div>
-        <button type="button" @click="addLocations">Add Location</button>
+        <button type="button" @click="store.preferredLocations.push('')">Add Location</button>
       </label>
 
       <label>
         Temperature Unit:
-        <select v-model="prefs.unit">
+        <select v-model="store.unit">
           <option value="f">°F</option>
           <option value="c">°C</option>
         </select>
@@ -27,11 +34,11 @@
 
       <label>
         Theme:
-        <select v-model="prefs.theme">
+        <select v-model="store.theme">
           <option value="light">Light</option>
           <option value="dark">Dark</option>
-          <option value="alt1">Alt 1</option>
-          <option value="alt2">Alt 2</option>
+          <option value="ocean">Ocean</option>
+          <option value="forest">Forest</option>
         </select>
       </label>
 
@@ -106,6 +113,9 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useCalendarStore } from '../stores/calendarStore'
+
+const store = useCalendarStore()
 
 const prefs = ref({
   displayName: '',
@@ -120,8 +130,12 @@ const prefs = ref({
   }
 })
 
+function updateName() {
+  store.userName.push('')
+}
+
 function addLocations() {
-  prefs.value.preferredLocations.push('')
+  store.preferredLocations.push('')
 }
 
 function clearPrefs() {
