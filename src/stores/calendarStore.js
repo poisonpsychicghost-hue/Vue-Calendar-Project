@@ -18,7 +18,7 @@ export const useCalendarStore = defineStore('calendar', {
         unit: 'f',
         theme: 'dark',
         preferredLocations: ['Atlanta'],
-        activeLoactionIdx: 0,
+        activeLocationIdx: 0,
 
         recurringTasks: {
             monthly: [],
@@ -35,7 +35,7 @@ export const useCalendarStore = defineStore('calendar', {
         validLocations: (state) =>
             state.preferredLocations.filter(loc => loc && loc.trim() !== ''),
         currentLocation: (state) =>
-            state.preferredLocations[state.activeLoactionIdx] || '',
+            state.preferredLocations[state.activeLocationIdx] || '',
         
         viewWeekIdx: (state) => { const weeks = getWeeksOfYear(state.viewDate.getFullYear())
             return weeks.findIndex(w =>
@@ -83,11 +83,12 @@ export const useCalendarStore = defineStore('calendar', {
         }, 
         nextLocation() {
             if (!this.preferredLocations.length) return
-            this.activeLocationIdx = (this.activeLoactionIdx + 1) % this.preferredLocations.length
+            this.activeLocationIdx = (this.activeLocationIdx + 1) % this.preferredLocations.length
+
         },
         setActiveLocation(idx) {
             const valid = this.validLocations
-            if (idx < valid.length) this.activeLoactionIdx = idx
+            if (idx < valid.length) this.activeLocationIdx = idx
             else this.activeLocationIdx = 0
         },
         addLocation() {
@@ -98,7 +99,7 @@ export const useCalendarStore = defineStore('calendar', {
         removeLocation(idx) {
             this.preferredLocations.splice(idx, 1)
             if (this.activeLocationIdx >= this.preferredLocations.length) {
-                this.activeLoactionIdx = 0
+                this.activeLocationIdx = 0
             }
         },
         addRecurringTask(task) {
@@ -121,7 +122,7 @@ export const useCalendarStore = defineStore('calendar', {
             this.theme = ''
             this.unit = 'f'
             this.preferredLocations = ['Atlanta']
-            this.activeLoactionIdx = 0
+            this.activeLocationIdx = 0
             this.recurringTasks = {montly: [], weekly: []}
         }
     }
