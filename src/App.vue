@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import CalendarView from './components/CalendarView.vue'
+import GoogleLogin from './components/GoogleLogin.vue';
 
 
 const userName = 'Sirius'; //Import Name from Google Auth.
@@ -28,9 +29,14 @@ function handleAuth() {
             </button>
         </header>
         <main class="main-window">
-            <h1>{{ userName }}'s Calendar</h1>
-            <!--Fill Out with Components with Transitions During Build-->
-            <CalendarView :theme="theme" />
+            <div v-if="!isLoggedIn">
+                <GoogleLogin />
+            </div> 
+            <div v-if="isLoggedIn">
+                <h1>{{ userName }}'s Calendar</h1>
+                <!--Fill Out with Components with Transitions During Build-->
+                <CalendarView :theme="theme" />
+            </div>
         </main>
         <footer>
             <p></p>
