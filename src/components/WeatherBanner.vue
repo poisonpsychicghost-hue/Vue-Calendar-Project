@@ -9,7 +9,7 @@ const store = useCalendarStore()
 
 const props = defineProps({
   dateStr: String, // expects 'YYYY-MM-DD'
-  location: { type: String, default: 'Atlanta,GA' },
+  location:"store.preferredLocations[store.activeLocationIdx]",
   mode: { type: String, default: 'monthly'}
 })
 
