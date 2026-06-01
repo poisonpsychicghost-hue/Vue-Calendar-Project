@@ -17,11 +17,19 @@ function handleAuth() {
     isLoggedIn.value = !isLoggedIn.value //PlaceHolder for Google Auth Hook
 };
 
+const prefOpen = ref(false)
+function openPref() {
+    prefOpen.value = !prefOpen.value
+}
+
 </script>
 
 <template>
     <div :class="['app-bg', theme]">
         <header class="top-bar">
+            <button @click="openPref">
+                Preferences ⚙
+            </button>
             <button @click="toggleTheme">
                 {{ theme === 'dark' ? '🌙' : '🌻' }}
             </button>
@@ -31,9 +39,12 @@ function handleAuth() {
         </header>
         <main class="main-window">
             <div v-if="!isLoggedIn">
+                <GoogleLogin :theme="theme"/>
+            </div>
+            <div v-if="isLoggedIn && prefOpen">
                 <UserPrefs :theme="theme"/>
-            </div> 
-            <div v-if="isLoggedIn">
+            </div>  
+            <div v-if="isLoggedIn && !prefOpen">
                 <h1>{{ userName }}'s Calendar</h1>
                 <!--Fill Out with Components with Transitions During Build-->
                 <CalendarView :theme="theme" />
