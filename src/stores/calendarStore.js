@@ -124,6 +124,39 @@ export const useCalendarStore = defineStore('calendar', {
             this.preferredLocations = ['Atlanta']
             this.activeLocationIdx = 0
             this.recurringTasks = {montly: [], weekly: []}
+        },
+        addRecurringsToTodos(forDate) {
+            const date = new Date(forDate)
+            const year = date.getFullYear()
+            const month = date.getMonth() // 0–11
+            const dayOfMonth = date.getDate() - 1 // idx = 0–30 for matching
+            const dayOfWeek = date.getDay() // 0=Sun, 6=Sat
+            console.log('Triggered')
+            
+            for (const recur of this.recurringTasks.monthly) {
+                console.log('monthly recur.idx:', typeof recur.idx, recur.idx, 'dayOfMonth:', typeof dayOfMonth, dayOfMonth)
+                if (recur.idx === dayOfMonth) {
+                    console.log("A")
+                    const todos = this.todosByDate[forDate] || []
+                    const already = todos.some(td => td.title === recur.title && td.details === recur.details && td.recurName === recur.recurName)
+                    if (!already) {
+                    this.addTodo(forDate, { ...recur })
+                    }
+                }
+            }
+
+            for (const recur of this.recurringTasks.weekly) {
+                console.log('weekly recur.idx:', typeof recur.idx, recur.idx, 'dayOfWeek:', typeof dayOfWeek, dayOfWeek)
+
+                if (recur.idx === dayOfWeek) {
+                    console.log("B")
+                    const todos = this.todosByDate[forDate] || []
+                    const already = todos.some(td => td.title === recur.title && td.details === recur.details && td.recurName === recur.recurName)
+                    if (!already) {
+                        this.addTodo(forDate, { ...recur })
+                    }
+                }
+            }
         }
     }
 })

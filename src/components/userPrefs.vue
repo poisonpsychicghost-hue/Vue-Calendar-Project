@@ -158,6 +158,9 @@ function deleteAccount() {
             <button @click="removeWeeklyTask(idx)">Remove</button>
           </li>
         </ul>
+        <button @click="() => {console.log('Clicked'); store.addRecurringsToTodos(store.viewDate.toISOString().split('T')[0]) }">
+          Import Recurring Tasks
+        </button>
       </div>
       <button type="button" @click="clearPrefs">Clear Preferences</button>
       <button type="button" @click="deleteAccount">Delete Account</button>
