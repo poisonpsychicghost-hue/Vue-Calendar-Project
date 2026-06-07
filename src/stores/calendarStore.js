@@ -10,8 +10,8 @@ export const useCalendarStore = defineStore('calendar', {
         notesByDate: {}, // { '2026-05-27': "My Daily Notes..."}
         user: null,
         session: null,
-
-
+        googleSub: '',
+        isloggedIn: false,
         userName: '',
         userEmail: '',
         birthday: '',
