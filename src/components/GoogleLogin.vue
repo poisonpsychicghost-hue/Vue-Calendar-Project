@@ -1,77 +1,48 @@
-<template>
-    <div class=""login-page>
-        <div class="login-card">
-            <h1>Sign in to Your Calendar</h1>
-            <!-- Placeholder For Google Widget/Button-->
-
-            <div id="google-login-widget">
-                    
-            </div>
-
-            <!-- Placeholder For Google Widget/Button-->
-        </div>
-        <p class="login-note">For Demo: Real Google Sign-In to Come Later...</p>
-    </div>
-</template>
-
 <script setup>
-import { is } from 'date-fns/locale';
-import { ref, onMounted } from 'vue';
-import { useCalendarStore } from '../stores/calendarStore';
+import { ref, onMounted, nextTick } from 'vue'
+import { waitForGoogleSDK, initGoogleAuth } from '../api/googleAuth'
 
-const store = useCalendarStore();
-const isLoggingIn = ref(false); // Change to a prop from App upon wiring
+const props = defineProps({
+  theme: String
+})
 
-onMounted(() => {
-  // Wait until the GIS SDK is loaded
-  const waitForGoogle = setInterval(() => {
-    if (window.google && window.google.accounts && window.google.accounts.id) {
-      clearInterval(waitForGoogle);
-      window.google.accounts.id.initialize({
-        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-        callback: handleGoogleCallback,
-        ux_mode: 'popup',
-      })
-      window.google.accounts.id.renderButton(
-        document.getElementById('google-login-widget'),
-        { theme: "outline", size: "large" }
-      )
-    }
-  }, 100)
+const buttonEl = ref(null)
+const isLoading = ref(true)
+const hasError = ref(false)
+const errorMessage = ref('')
 
-  // Optionally, add a timeout to fail gracefully if the script never loads
-});
-
-function handleGoogleCallback(response) {
-    if (!response.credential) return
-    const profile = parseJwt(response.credential)
-
-    store.userName = profile.name
-    store.userEmail = profile.email
-    store.googleSub = profile.sub
-
-    isLoggingIn.value = false
-}
-
-function parseJwt(token) {
-    if (!token) return {}
-    const base64Url = token.split('.')[1]
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g,'/')
-    const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(c => {
-       return '%'  + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-    }).join(''))
-    return JSON.parse(jsonPayload)
-}
-
-function logoutGoogle() {
-  store.isLoggedIn = false;
-  store.googleSub = '';
-
-
-}
-
+onMounted(async () => {
+  try {
+    await waitForGoogleSDK()
+    isLoading.value = false        // renders the buttonEl div into the DOM
+    await nextTick()               // waits for Vue to finish that DOM update
+    initGoogleAuth(buttonEl.value) // buttonEl now exists and is non-null
+  } catch (err) {
+    isLoading.value = false
+    hasError.value = true
+    errorMessage.value = 'Could not load Google Sign-In. Please check your connection and refresh.'
+  }
+})
 </script>
 
-<style scoped>
+<template>
+  <div :class="['login-page', theme]">
+    <div class="login-card">
+      <h1>Sign in to Your Calendar</h1>
 
-</style>
+      <div v-if="isLoading" class="login-status">
+        Loading sign-in…
+      </div>
+
+      <div v-else-if="hasError" class="login-status login-error">
+        {{ errorMessage }}
+      </div>
+
+      <div v-else ref="buttonEl" id="google-login-widget"></div>
+    </div>
+
+    <p class="login-note">
+      Sign in with your Google account to access your calendar.
+    </p>
+  </div>
+</template>
