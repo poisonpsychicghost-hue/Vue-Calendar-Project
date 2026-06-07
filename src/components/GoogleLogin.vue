@@ -55,8 +55,8 @@ function handleGoogleCallback(response) {
 
 function parseJwt(token) {
     if (!token) return {}
-    const base63Url = token.split('.')[1]
-    const base64 = base63Url.replace(/-/g, '+').replace(/_/g,'/')
+    const base64Url = token.split('.')[1]
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g,'/')
     const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(c => {
        return '%'  + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
     }).join(''))
