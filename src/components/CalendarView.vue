@@ -1,104 +1,52 @@
 <script setup>
-import { ref, computed } from 'vue';
-import { format, addWeeks, subWeeks, startOfWeek, endOfWeek, eachDayOfInterval, isToday, isSameYear, isSameWeek } from 'date-fns';
-import MonthlyView from './MonthlyView.vue';
-import WeeklyView from './WeeklyView.vue';
-import DailyView from './DailyView.vue';
-import { getWeather } from '../api/weather.js';
+import { computed } from 'vue'
+import { useCalendarStore } from '../stores/calendarStore'
+import MonthlyView from './MonthlyView.vue'
+import WeeklyView from './WeeklyView.vue'
+import DailyView from './DailyView.vue'
 
-const props = defineProps(['theme', 'temp-unit', 'location']);
-const currentView = ref('month'); // 'month', 'week', 'day'
-const year = ref(new Date().getFullYear());
-const month = ref(new Date().getMonth());
+const store = useCalendarStore()
 
-const weekOptions = computed(() => getWeeksOfYear(year.value))
-const currentDate = ref(new Date());
-const initialWeekIdx = computed(() => 
-    weekOptions.value.findIndex(
-        week => isSameWeek(currentDate.value, week.start, { weekStartsOn: 0 })
-    )
-) 
-const selectedWeekIdx = ref(initialWeekIdx.value >= 0 ? initialWeekIdx.value: 0)
-
+const props = defineProps({
+  theme: String,
+  tempUnit: String,
+  location: String
+})
 
 const getViewComponent = computed(() => {
-    if (currentView.value === 'month') return MonthlyView
-    if (currentView.value === 'week') return WeeklyView
-    return DailyView
-} 
-);
+  if (store.currentView === 'month') return MonthlyView
+  if (store.currentView === 'week') return WeeklyView
+  return DailyView
+})
 
-const monthYearProps = computed(() => ({
-  month: month.value,
-  year: year.value,
-  selectedWeekIdx: selectedWeekIdx.value,
-  weekOptions: weekOptions.value,
-  'onUpdate:month': val => month.value = val,
-  'onUpdate:year': val => year.value = val,
-  'onUpdate:selectedWeekIdx': idx => selectedWeekIdx.value = idx,
-  currentDate: currentDate.value,
-  onUpdateCurrentDate: date => currentDate.value = new Date(date)
-
-  
-}));
-
-
-
-function showMonth() { currentView.value = 'month' };
-function showWeek() { currentView.value = 'week'}
-function showDay() { currentView.value = 'day'}
-
+function showMonth() { store.currentView = 'month' }
+function showWeek() { store.currentView = 'week' }
+function showDay() { store.currentView = 'day' }
 
 function goToDay(date) {
-  currentDate.value = new Date(date)
-  currentView.value = 'date'
+  store.viewDate = new Date(date)
+  store.currentView = 'day'
 }
-
-function getWeeksOfYear(year) {
-  const weeks = []
-  let start = startOfWeek(new Date(Number(year), 0, 1), { weekStartsOn: 0 })
-  let weekNum = 1
-  while (isSameYear(start, new Date(year, 6, 1)) || (weekNum === 1)) {
-    const end = endOfWeek(start, { weekStartsOn: 0 })
-    weeks.push({
-      start,
-      end,
-      label: `Week ${weekNum}: ${format(start, 'MMM d')} - ${format(end, 'MMM d')}`
-    })
-    start = addWeeks(start, 1)
-    weekNum++
-    // If we pass Dec 31, we're done
-    if (start.getFullYear() > year && weekNum > 2) break
-  }
-  return weeks
-}
-
 </script>
 
 <template>
-    <div>
-        <div :class="['transition-tabs', theme]">
-            <button :class="['tab', theme]" @click="showMonth">Month</button>
-            <button :class="['tab', theme]" @click="showWeek">Week</button>
-            <button :class="['tab', theme]" @click="showDay">Day</button>
-        </div>
-        <transition name="fade" mode="out-in">
-            <component
-            :is="getViewComponent"
-            :theme="theme"
-            :key="currentView"
-            v-bind="monthYearProps"
-            :current-date="currentDate.value"
-            :onUpdateCurrentDate="date => currentDate.value = new Date(date)"
-            @updateCurrentDate="goToDay"
-            @update:view="showDay"
-            />
-        </transition>
-
-        
-        <!-- <MonthlyView :theme="theme" /> 
-       <WeeklyView :theme="theme" /> -->
+  <div>
+    <div :class="['transition-tabs', theme]">
+      <button :class="['tab', theme]" @click="showMonth">Month</button>
+      <button :class="['tab', theme]" @click="showWeek">Week</button>
+      <button :class="['tab', theme]" @click="showDay">Day</button>
     </div>
+
+    <transition name="fade" mode="out-in">
+      <component
+        :is="getViewComponent"
+        :theme="theme"
+        :key="store.currentView"
+        @update:view="showDay"
+        @updateCurrentDate="goToDay"
+      />
+    </transition>
+  </div>
 </template>
 
 <style scoped>
