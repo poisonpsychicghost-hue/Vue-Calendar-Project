@@ -1,9 +1,15 @@
 <script setup>
+import { ref } from 'vue'
 import { useCalendarStore } from '../stores/calendarStore'
+import { logoutGoogle } from '../api/googleAuth'
+
 const store = useCalendarStore()
 
-// Adding utility for recurring task input
-import { ref } from 'vue'
+const props = defineProps({
+  theme: String
+})
+
+// Recurring task input state
 const newTask = ref({
   type: 'monthly',
   idx: 0,
@@ -12,79 +18,62 @@ const newTask = ref({
   details: ''
 })
 
-function addRecurringTask() {
-  if (
-    (newTask.value.type === 'monthly' && (newTask.value.idx < 0 || newTask.value.idx > 30)) ||
-    (newTask.value.type === 'weekly' && (newTask.value.idx < 0 || newTask.value.idx > 6))
-  ) return
+// idx convention (mirrors store):
+// Monthly: 0 = 1st of month, 30 = 31st of month (stored 0-indexed, displayed as idx + 1)
+// Weekly:  0 = Sunday, 6 = Saturday
 
-  const copy = { ...newTask.value }
-  if (newTask.value.type === 'monthly') {
-    store.recurringTasks.monthly.push(copy)
-  } else {
-    store.recurringTasks.weekly.push(copy)
-  }
+function addRecurringTask() {
+  const { type, idx, title } = newTask.value
+  if (!title.trim()) return
+
+  if (type === 'monthly' && (idx < 0 || idx > 30)) return
+  if (type === 'weekly' && (idx < 0 || idx > 6)) return
+
+  store.addRecurringTask({ ...newTask.value })
   newTask.value = { type: 'monthly', idx: 0, recurName: '', title: '', details: '' }
 }
 
-function removeMonthlyTask(idx) {
-  store.recurringTasks.monthly.splice(idx, 1)
-}
-function removeWeeklyTask(idx) {
-  store.recurringTasks.weekly.splice(idx, 1)
-}
-
-function addLocation() {
-  // Only add if there are no empty location slots
-  if (store.preferredLocations.every(loc => loc.trim() !== "")) {
-    store.preferredLocations.push('')
-  }
-}
-function removeLocation(idx) {
-  store.preferredLocations.splice(idx, 1)
-  // Safety: keep activeLocationIdx in range
-  if (store.activeLocationIdx >= store.preferredLocations.length) {
-    store.activeLocationIdx = 0
-  }
-}
-
-function clearPrefs() {
-  store.displayName = ''
-  store.preferredLocations = ['Atlanta']
-  store.theme = 'dark'
-  store.unit = 'f'
-  store.birthday = ''
-  store.userEmail = ''
-  store.recurringTasks = { monthly: [], weekly: [] }
-  store.activeLocationIdx = 0
-}
-
 function deleteAccount() {
-  clearPrefs()
-  // Later: add logic to fully wipe user from storage or log out
+  store.clearPrefs()
+  logoutGoogle()
 }
 </script>
 
 <template>
-  <div class="prefs-card">
+  <div :class="['prefs-card', theme]">
     <h2>User Preferences</h2>
+
     <form @submit.prevent>
+
+      <!-- Display name -->
       <label>
         Display Name:
         <input v-model="store.userName" placeholder="Display name" />
       </label>
-      <label>
-        Preferred Locations:
-        <div v-for="(loc, idx) in store.preferredLocations" :key="idx" style="margin-bottom: 0.5em;">
-          <input v-model="store.preferredLocations[idx]" placeholder="Location" />
-          <button type="button" @click="store.activeLocationIdx = idx">
-            Set Active
-          </button>
-          <span v-if="store.activeLocationIdx === idx">&nbsp;(Current)</span>
-          <button type="button" @click="removeLocation(idx)" v-if="store.preferredLocations.length > 1">Remove</button>
-        </div>
-        <button type="button" @click="addLocation">Add Location</button>
-      </label>
+
+      <!-- Preferred locations -->
+      <label>Preferred Locations:</label>
+      <div
+        v-for="(loc, idx) in store.preferredLocations"
+        :key="idx"
+        class="location-row"
+      >
+        <input v-model="store.preferredLocations[idx]" placeholder="City, State" />
+        <button type="button" @click="store.setActiveLocation(idx)">
+          Set Active
+        </button>
+        <span v-if="store.activeLocationIdx === idx">(Current)</span>
+        <button
+          type="button"
+          @click="store.removeLocation(idx)"
+          v-if="store.preferredLocations.length > 1"
+        >
+          Remove
+        </button>
+      </div>
+      <button type="button" @click="store.addLocation">Add Location</button>
+
+      <!-- Temperature unit -->
       <label>
         Temperature Unit:
         <select v-model="store.unit">
@@ -92,6 +81,8 @@ function deleteAccount() {
           <option value="c">°C</option>
         </select>
       </label>
+
+      <!-- Theme -->
       <label>
         Theme:
         <select v-model="store.theme">
@@ -101,13 +92,17 @@ function deleteAccount() {
           <option value="forest">Forest</option>
         </select>
       </label>
+
+      <!-- Birthday -->
       <label>
         Birthday:
         <input type="date" v-model="store.birthday" />
       </label>
-      <!-- Recurring Tasks Input UI -->
+
+      <!-- Recurring tasks input -->
       <fieldset>
         <legend>Add Recurring Task</legend>
+
         <label>
           Type:
           <select v-model="newTask.type">
@@ -115,55 +110,80 @@ function deleteAccount() {
             <option value="weekly">Weekly</option>
           </select>
         </label>
+
         <label>
           {{ newTask.type === 'monthly' ? 'Day of Month (1–31)' : 'Day of Week' }}
           <input
             type="number"
             v-model.number="newTask.idx"
-            :min="0"
-            :max="newTask.type === 'monthly' ? 30 : 6"
+            :min="newTask.type === 'monthly' ? 1 : 0"
+            :max="newTask.type === 'monthly' ? 31 : 6"
           />
-          <span v-if="newTask.type === 'weekly'">
-            {{ ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][newTask.idx] }}
+          <span v-if="newTask.type === 'monthly'">
+            {{ newTask.idx >= 1 && newTask.idx <= 31 ? `Day ${newTask.idx}` : '' }}
+          </span>
+          <span v-else>
+            {{ ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][newTask.idx] }}
           </span>
         </label>
+
         <label>
-          Name:<input v-model="newTask.recurName" />
+          Name:
+          <input v-model="newTask.recurName" placeholder="e.g. Rent" />
         </label>
+
         <label>
-          Title:<input v-model="newTask.title" />
+          Title:
+          <input v-model="newTask.title" placeholder="Task title" />
         </label>
+
         <label>
-          Details:<input v-model="newTask.details" />
+          Details:
+          <input v-model="newTask.details" placeholder="Optional details" />
         </label>
+
         <button type="button" @click="addRecurringTask">Add Recurring Task</button>
       </fieldset>
-      <!-- Show Current Recurring Tasks -->
+
+      <!-- Current recurring tasks -->
       <div>
         <h3>Monthly Recurring Tasks</h3>
         <ul>
-          <li v-for="(task, idx) in store.recurringTasks.monthly" :key="idx">
+          <li
+            v-for="(task, idx) in store.recurringTasks.monthly"
+            :key="task.recurName + idx"
+          >
             <strong>{{ task.recurName }}</strong>
-            — Day {{ task.idx + 1 }} — <i>{{ task.title }}</i>
-            <button @click="removeMonthlyTask(idx)">Remove</button>
+            — Day {{ task.idx + 1 }} —
+            <i>{{ task.title }}</i>
+            <button type="button" @click="store.removeMonthlyTask(idx)">Remove</button>
           </li>
         </ul>
+        <p v-if="!store.recurringTasks.monthly.length">No monthly tasks set.</p>
       </div>
+
       <div>
         <h3>Weekly Recurring Tasks</h3>
         <ul>
-          <li v-for="(task, idx) in store.recurringTasks.weekly" :key="idx">
+          <li
+            v-for="(task, idx) in store.recurringTasks.weekly"
+            :key="task.recurName + idx"
+          >
             <strong>{{ task.recurName }}</strong>
-            — {{ ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][task.idx] }} — <i>{{ task.title }}</i>
-            <button @click="removeWeeklyTask(idx)">Remove</button>
+            — {{ ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][task.idx] }} —
+            <i>{{ task.title }}</i>
+            <button type="button" @click="store.removeWeeklyTask(idx)">Remove</button>
           </li>
         </ul>
-        <button @click="() => {console.log('Clicked'); store.addRecurringsToTodos(store.viewDate.toISOString().split('T')[0]) }">
-          Import Recurring Tasks
-        </button>
+        <p v-if="!store.recurringTasks.weekly.length">No weekly tasks set.</p>
       </div>
-      <button type="button" @click="clearPrefs">Clear Preferences</button>
-      <button type="button" @click="deleteAccount">Delete Account</button>
+
+      <!-- Preference actions -->
+      <div class="prefs-actions">
+        <button type="button" @click="store.clearPrefs">Clear Preferences</button>
+        <button type="button" @click="deleteAccount">Delete Account</button>
+      </div>
+
     </form>
   </div>
 </template>
