@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useCalendarStore } from '../stores/calendarStore'
 import { logoutGoogle } from '../api/googleAuth'
 import { WEEKDAYS_SHORT } from '../utils/calendarHelpers'
+import './styles/themes.css'
 
 const store = useCalendarStore()
 
@@ -189,6 +190,3 @@ function deleteAccount() {
   </div>
 </template>
 
-<style scoped>
-
-</style>

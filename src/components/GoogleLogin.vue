@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, nextTick } from 'vue'
 import { waitForGoogleSDK, initGoogleAuth } from '../api/googleAuth'
+import './styles/themes.css'
 
 const props = defineProps({
   theme: String
