@@ -1,8 +1,10 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { format, addDays, subDays } from 'date-fns'
 import { useCalendarStore } from '../stores/calendarStore'
 import WeatherBanner from './WeatherBanner.vue'
+import ToDoList from './ToDoList.vue'
+import NoteField from './NoteField.vue'
 
 const store = useCalendarStore()
 
@@ -12,54 +14,6 @@ const props = defineProps({
 
 const dateStr = computed(() => format(store.viewDate, 'yyyy-MM-dd'))
 const displayDate = computed(() => format(store.viewDate, 'EEEE, MMMM d, yyyy'))
-
-const newTodoTitle = ref('')
-const newTodoDetails = ref('')
-
-const todos = computed(() => store.getTodos(dateStr.value))
-
-const note = computed({
-  get: () => store.getNote(dateStr.value),
-  set: val => store.setNote(dateStr.value, val)
-})
-
-const draggingIdx = ref(null)
-
-function addTodo() {
-  if (!newTodoTitle.value.trim()) return
-  store.addTodo(dateStr.value, {
-    title: newTodoTitle.value.trim(),
-    details: newTodoDetails.value.trim()
-  })
-  newTodoTitle.value = ''
-  newTodoDetails.value = ''
-}
-
-function removeTodo(idx) {
-  store.removeTodo(dateStr.value, idx)
-}
-
-function setTodos(newList) {
-  store.setTodos(dateStr.value, newList)
-}
-
-function handleDragStart(idx) {
-  draggingIdx.value = idx
-}
-
-function handleDragOver(idx) {
-  if (draggingIdx.value !== null && draggingIdx.value !== idx) {
-    const movedList = [...todos.value]
-    const [moved] = movedList.splice(draggingIdx.value, 1)
-    movedList.splice(idx, 0, moved)
-    setTodos(movedList)
-    draggingIdx.value = idx
-  }
-}
-
-function handleDrop() {
-  draggingIdx.value = null
-}
 
 function prevDay() {
   store.viewDate = subDays(store.viewDate, 1)
@@ -83,52 +37,10 @@ function nextDay() {
       <WeatherBanner :date-str="dateStr" mode="daily" />
 
       <div class="lower-block">
-
-        <div :class="['day-todoCard', theme]">
-          <p>TODOs:</p>
-          <ul class="day-todos">
-            <li
-              v-for="(todo, idx) in todos"
-              :key="todo.title + idx"
-              draggable="true"
-              @dragstart="handleDragStart(idx)"
-              @dragover.prevent="handleDragOver(idx)"
-              @drop="handleDrop"
-            >
-              {{ todo.title }}
-              <span v-if="todo.details">: {{ todo.details }}</span>
-              <button @click="removeTodo(idx)">Remove</button>
-            </li>
-            <li v-if="!todos.length" class="todo-empty">No todos for this day.</li>
-          </ul>
-
-          <div class="todo-inputBox">
-            <label>
-              Title:
-              <input
-                v-model="newTodoTitle"
-                placeholder="Title"
-                @keyup.enter="addTodo"
-              />
-            </label>
-            <label>
-              Details:
-              <input
-                v-model="newTodoDetails"
-                placeholder="Details"
-                @keyup.enter="addTodo"
-              />
-            </label>
-            <button @click="addTodo">Add ToDo</button>
-          </div>
-        </div>
-
-        <div :class="['day-notes', theme]">
-          <p>Daily Notes</p>
-          <textarea v-model="note" placeholder="Write your notes for the day..."></textarea>
-        </div>
-
+        <ToDoList :date-str="dateStr" :theme="theme" />
+        <NoteField :date-str="dateStr" :theme="theme" />
       </div>
+
     </div>
   </div>
 </template>
