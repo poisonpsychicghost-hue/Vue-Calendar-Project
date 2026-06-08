@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useCalendarStore } from '../stores/calendarStore'
 import { logoutGoogle } from '../api/googleAuth'
+import { WEEKDAYS_SHORT } from '../utils/calendarHelpers'
 
 const store = useCalendarStore()
 

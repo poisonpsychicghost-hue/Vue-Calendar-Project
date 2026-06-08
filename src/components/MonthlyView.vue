@@ -4,6 +4,9 @@ import { format, addMonths, subMonths } from 'date-fns'
 import { useCalendarStore } from '../stores/calendarStore'
 import { getMonthDays } from '../api/dateController'
 import WeatherBanner from './WeatherBanner.vue'
+import { todoClass, WEEKDAYS_LONG } from '../utils/calendarHelpers'
+
+
 
 const store = useCalendarStore()
 
@@ -21,13 +24,6 @@ const monthName = computed(() => format(store.viewDate, 'MMMM'))
 
 const yearOptions = Array.from({ length: 31 }, (_, i) => 2020 + i)
 
-function todoClass(dateStr) {
-  const count = store.getTodos(dateStr).length
-  if (count >= 5) return 'todo-high'
-  if (count > 1) return 'todo-medium'
-  if (count === 1) return 'todo-low'
-  return ''
-}
 
 function prevMonth() {
   store.viewDate = subMonths(store.viewDate, 1)
