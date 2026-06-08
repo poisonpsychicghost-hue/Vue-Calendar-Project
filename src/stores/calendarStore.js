@@ -58,18 +58,20 @@ export const useCalendarStore = defineStore('calendar', {
     currentLocation: (state) =>
       state.preferredLocations[state.activeLocationIdx] || '',
 
-    // Shared week lookup — used by viewWeekIdx and viewWeekRange
-    // to avoid duplicating the findIndex call
-    viewWeek: (state) => {
+    viewWeekIdx: (state) => {
+      const weeks = getWeeksOfYear(state.viewDate.getFullYear())
+      return weeks.findIndex(
+        w => state.viewDate >= w.start && state.viewDate <= w.end
+      )
+    },
+
+    viewWeekRange: (state) => {
       const weeks = getWeeksOfYear(state.viewDate.getFullYear())
       const idx = weeks.findIndex(
         w => state.viewDate >= w.start && state.viewDate <= w.end
       )
-      return { idx, week: idx >= 0 ? weeks[idx] : null }
+      return idx >= 0 ? weeks[idx] : null
     },
-
-    viewWeekIdx: (state, getters) => getters.viewWeek.idx,
-    viewWeekRange: (state, getters) => getters.viewWeek.week,
 
     isToday: (state) => {
       const d1 = state.currentDate
