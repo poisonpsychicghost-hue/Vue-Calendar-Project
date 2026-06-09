@@ -2,8 +2,6 @@
 import { ref } from 'vue'
 import { useCalendarStore } from '../stores/calendarStore'
 import { logoutGoogle } from '../api/googleAuth'
-import { WEEKDAYS_SHORT } from '../utils/calendarHelpers'
-import './styles/themes.css'
 
 const store = useCalendarStore()
 
@@ -21,14 +19,14 @@ const newTask = ref({
 })
 
 // idx convention (mirrors store):
-// Monthly: 0 = 1st of month, 30 = 31st of month (stored 0-indexed, displayed as idx + 1)
+// Monthly: 1 = 1st of month, 31 = 31st of month (stored 1-indexed, matches date.getDate())
 // Weekly:  0 = Sunday, 6 = Saturday
 
 function addRecurringTask() {
   const { type, idx, title } = newTask.value
   if (!title.trim()) return
 
-  if (type === 'monthly' && (idx < 0 || idx > 30)) return
+  if (type === 'monthly' && (idx < 1 || idx > 31)) return
   if (type === 'weekly' && (idx < 0 || idx > 6)) return
 
   store.addRecurringTask({ ...newTask.value })
@@ -156,7 +154,7 @@ function deleteAccount() {
             :key="task.recurName + idx"
           >
             <strong>{{ task.recurName }}</strong>
-            — Day {{ task.idx + 1 }} —
+            — Day {{ task.idx }} —
             <i>{{ task.title }}</i>
             <button type="button" @click="store.removeMonthlyTask(idx)">Remove</button>
           </li>
@@ -189,4 +187,3 @@ function deleteAccount() {
     </form>
   </div>
 </template>
-

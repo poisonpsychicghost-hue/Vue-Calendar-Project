@@ -34,9 +34,9 @@ export const useCalendarStore = defineStore('calendar', {
     prefOpen: false,
     authWarning: false, // true when session retry failed
 
-    // Recurring tasks — idx is 0-indexed
-    // Monthly: idx 0 = 1st of month, idx 30 = 31st of month
-    // Weekly:  idx 0 = Sunday, idx 6 = Saturday
+    // Recurring tasks
+    // Monthly: idx 1–31, matches date.getDate() directly
+    // Weekly:  idx 0–6,  matches date.getDay() (0 = Sunday)
     recurringTasks: {
       monthly: [],
       weekly: []
@@ -169,8 +169,8 @@ export const useCalendarStore = defineStore('calendar', {
 
     addRecurringsToTodos(forDate) {
       const date = new Date(forDate)
-      const dayOfMonth = date.getDate() - 1 // 0-indexed: Jan 1 = 0
-      const dayOfWeek = date.getDay()       // 0 = Sunday, 6 = Saturday
+      const dayOfMonth = date.getDate() // 1-indexed: Jan 1 = 1, matches user input
+      const dayOfWeek = date.getDay()   // 0-indexed: 0 = Sunday, 6 = Saturday
 
       for (const recur of this.recurringTasks.monthly) {
         if (recur.idx === dayOfMonth) {
