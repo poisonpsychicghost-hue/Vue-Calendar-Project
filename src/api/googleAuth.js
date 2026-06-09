@@ -102,3 +102,30 @@ export function logoutGoogle() {
 
   store.logout()
 }
+
+// --- Session retry ---
+// Called when a mid-session auth failure is detected.
+// Attempts one silent re-initialization of the Google SDK.
+// If that fails, sets authWarning in the store — App.vue
+// shows the warning banner with logout as the only action.
+
+export async function retryAuth() {
+  const store = useCalendarStore()
+  try {
+    await waitForGoogleSDK()
+    window.google.accounts.id.initialize({
+      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+      callback: handleGoogleCallback,
+      ux_mode: 'popup'
+    })
+    // Prompt silent re-auth
+    window.google.accounts.id.prompt(notification => {
+      if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+        // Silent retry failed — warn the user
+        store.authWarning = true
+      }
+    })
+  } catch {
+    store.authWarning = true
+  }
+}

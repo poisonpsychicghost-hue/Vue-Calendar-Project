@@ -4,6 +4,7 @@ import CalendarView from './components/CalendarView.vue'
 import GoogleLogin from './components/GoogleLogin.vue'
 import UserPrefs from './components/userPrefs.vue'
 import { useCalendarStore } from './stores/calendarStore.js'
+import { logoutGoogle } from './api/googleAuth'
 
 const store = useCalendarStore()
 
@@ -33,7 +34,9 @@ function openPref() {
         </button>
       </div>
       <div class="top-system-tabs">
-        <button @click="openPref">Preferences ⚙</button>
+        <button v-if="store.isLoggedIn" @click="openPref">
+          Preferences ⚙
+        </button>
         <button @click="store.logout">
           {{ store.isLoggedIn ? 'Logout' : 'Login' }}
         </button>
@@ -41,83 +44,52 @@ function openPref() {
     </header>
 
     <main class="main-window">
-      <div v-if="!store.isLoggedIn">
-        <GoogleLogin :theme="store.theme" />
-      </div>
-      <div v-else-if="store.isLoggedIn && prefOpen">
-        <UserPrefs :theme="store.theme" />
-      </div>
-      <div v-else>
-        <h1>{{ store.userName || 'User' }}'s Calendar</h1>
-        <CalendarView
-          :theme="store.theme"
-          :temp-unit="store.unit"
-          :location="store.preferredLocations[store.activeLocationIdx]"
-        />
-      </div>
+      <transition name="view-fade" mode="out-in">
+
+        <div v-if="!store.isLoggedIn" key="login">
+          <GoogleLogin :theme="store.theme" />
+        </div>
+
+        <div v-else-if="store.prefOpen" key="prefs">
+          <UserPrefs :theme="store.theme" />
+        </div>
+
+        <div v-else key="calendar">
+          <h1 class="calendar-greeting">
+            {{ store.userName || 'User' }}'s Calendar
+          </h1>
+          <CalendarView
+            :theme="store.theme"
+            :temp-unit="store.unit"
+            :location="store.preferredLocations[store.activeLocationIdx]"
+          />
+        </div>
+
+      </transition>
+      <!-- Auth warning banner — shown after silent retry fails -->
+      <transition name="view-fade">
+        <div v-if="store.authWarning" class="auth-warning-banner">
+          <span>⚠️ Your session could not be verified. Please log out and sign in again.</span>
+          <button class="auth-warning-logout" @click="logoutGoogle">
+            Log Out
+          </button>
+        </div>
+      </transition>
     </main>
 
     <footer>
-      <p>Calendar App — Built by Sirius | 2026 |</p>
+      <p>Calendar App — Built by Sirius | 2026</p>
       <p>
-    Weather data provided by
-      <a href="https://www.weatherapi.com/" title="Free Weather API" target="_blank" rel="noopener noreferrer">
-        WeatherAPI.com
-      </a>
-    </p>
+        Weather data provided by
+        <a
+          href="https://www.weatherapi.com/"
+          title="Free Weather API"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          WeatherAPI.com
+        </a>
+      </p>
     </footer>
   </div>
 </template>
-
-<style scoped>
-.app-bg.dark {
-  background: #1b1522;
-  color: #c6d7e7;
-  transition: background 0.2s, color 0.2s;
-}
-.app-bg.light {
-  background: #8d8e92f5;
-  color: #15192e;
-  transition: background 0.2s, color 0.2s;
-}
-.top-bar {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  padding: 1rem 2rem 0 0;
-}
-.main-window {
-  margin: 2rem auto;
-  max-width: 900px;
-  min-width: 320px;
-  width: 90vw;
-  padding: 2rem 1rem;
-  border-radius: 1.2rem;
-  box-shadow: 0 4px 24px rgba(151, 75, 218, 0.16);
-  background: inherit;
-  overflow-x: auto;
-}
-.main-window h1,
-.main-window h2,
-.main-window h3,
-.main-window h4,
-.main-window h5,
-.main-window h6 {
-  color: inherit;
-}
-button {
-  background: none;
-  border: none;
-  font-size: 1.2rem;
-  cursor: pointer;
-  color: inherit;
-}
-footer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 0.88rem;
-  padding: 0.5rem 0;
-  min-height: 2rem;
-}
-</style>

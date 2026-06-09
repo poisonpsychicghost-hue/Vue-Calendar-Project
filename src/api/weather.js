@@ -35,7 +35,7 @@ function loadFromLocalCache(key, maxAgeMs = 24 * 60 * 60 * 1000) {
     if (Date.now() - time > maxAgeMs) return null
     return data
   } catch {
-    return null
+    return { error: 'api_fail', reason: 'Weather data could not be retrieved. Check your connection.' }
   }
 }
 
@@ -70,12 +70,12 @@ export async function getWeather(dateStr = '', location = 'Atlanta, GA') {
   // WeatherAPI free tier: history available from 2020-01-01,
   // forecast available up to 14 days ahead
   if (isBefore(requestDate, new Date('2020-01-01'))) {
-    return { condition: 'No data available for this date', icon: '', temp: null }
+    return { error: 'too_old', reason: 'Weather history is only available from 2020 onwards.' }
   }
 
   const daysAhead = differenceInCalendarDays(requestDate, today)
   if (daysAhead > 14) {
-    return { condition: 'Forecast unavailable — more than 14 days ahead', icon: '', temp: null }
+    return { error: 'too_far', reason: 'Forecast is only available up to 14 days ahead.' }
   }
 
   // Select correct endpoint based on date relationship to today
@@ -138,6 +138,6 @@ export async function getWeather(dateStr = '', location = 'Atlanta, GA') {
     return result
 
   } catch {
-    return null
+    return { error: 'api_fail', reason: 'Weather data could not be retrieved. Check your connection.' }
   }
 }

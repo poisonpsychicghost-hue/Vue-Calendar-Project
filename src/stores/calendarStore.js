@@ -32,6 +32,7 @@ export const useCalendarStore = defineStore('calendar', {
 
     // UI state
     prefOpen: false,
+    authWarning: false, // true when session retry failed
 
     // Recurring tasks — idx is 0-indexed
     // Monthly: idx 0 = 1st of month, idx 30 = 31st of month

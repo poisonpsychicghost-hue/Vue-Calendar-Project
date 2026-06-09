@@ -19,19 +19,19 @@ const props = defineProps({
 
 const weather = ref(null)
 const isLoading = ref(false)
-const hasError = ref(false)
+const errorReason = ref('')
 
 const isToday = computed(() => isTodayFn(parseISO(props.dateStr)))
 
 async function fetchWeather() {
   isLoading.value = true
-  hasError.value = false
+  errorReason.value = ''
   weather.value = null
 
   const result = await getWeather(props.dateStr, store.currentLocation)
 
-  if (result === null) {
-    hasError.value = true
+  if (!result || result.error) {
+    errorReason.value = result?.reason || 'Weather data could not be retrieved.'
   } else {
     weather.value = result
   }
@@ -39,13 +39,8 @@ async function fetchWeather() {
   isLoading.value = false
 }
 
-// Refetch when date or active location changes
 onMounted(fetchWeather)
 watch(() => [props.dateStr, store.currentLocation], fetchWeather)
-
-// --- Display helpers ---
-// All temperature and data checks use !== null rather than isNaN,
-// because weather.js uses null as the sentinel for missing data.
 
 function tempDisplay(c, f) {
   if (store.unit === 'f') return f !== null ? `${Math.round(f)}°F` : null
@@ -56,15 +51,17 @@ function tempDisplay(c, f) {
 <template>
   <div class="weather-banner">
 
-    <!-- Loading state -->
+    <!-- Loading -->
     <span v-if="isLoading" class="weather-loading">...</span>
 
-    <!-- Error state -->
-    <span v-else-if="hasError" class="weather-error">Weather unavailable</span>
-
-    <!-- No data (boundary date) -->
-    <span v-else-if="weather && !weather.icon && weather.text" class="weather-note">
-      {{ weather.text }}
+    <!-- Error state — 🚫 with tooltip -->
+    <span
+      v-else-if="errorReason"
+      class="weather-unavailable"
+      :title="errorReason"
+      aria-label="Weather unavailable"
+    >
+      🚫
     </span>
 
     <!-- Monthly mode -->
