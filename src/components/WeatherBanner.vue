@@ -61,7 +61,7 @@ function tempDisplay(c, f) {
       :title="errorReason"
       aria-label="Weather unavailable"
     >
-      🚫
+      🚫 Weather Unavailable
     </span>
 
     <!-- Monthly mode -->
