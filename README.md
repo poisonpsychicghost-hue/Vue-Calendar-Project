@@ -8,7 +8,7 @@ A full-featured personal calendar built with Vue 3 — featuring Google OAuth, l
 
 ## Live Demo
 
-🔗 [View on Netlify](#) *(link coming soon)*
+🔗 https://sirius-calendar-app.netlify.app
 
 Sign in with any Google account to access your personal calendar. All data is isolated per user.
 
